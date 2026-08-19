@@ -4,8 +4,7 @@ const cors = require("cors");
 
 const app = express();
 
-console.log("MY NEW SERVER CODE IS RUNNING");
-
+console.log("TOUR EXPENSE SERVER STARTING...");
 
 // ==================================================
 // MIDDLEWARE
@@ -19,36 +18,142 @@ app.use(express.json());
 // MYSQL CONNECTION
 // ==================================================
 
-const db = mysql.createConnection({
+// Railway MySQL automatically provides these
+// environment variables.
+//
+// Local computer-এ চাইলে এগুলো নিজের MySQL values দিয়ে
+// environment variable হিসেবে দিতে পারবে.
 
-    host: "localhost",
+const db = mysql.createPool({
 
-    user: "root",
+    host: process.env.MYSQLHOST || "localhost",
 
-    password: "1234@shoayeb",
+    port: process.env.MYSQLPORT
+        ? Number(process.env.MYSQLPORT)
+        : 3306,
 
-    database: "tour_expense"
+    user: process.env.MYSQLUSER || "root",
+
+    password: process.env.MYSQLPASSWORD || "",
+
+    database: process.env.MYSQLDATABASE || "tour_expense",
+
+    waitForConnections: true,
+
+    connectionLimit: 10,
+
+    queueLimit: 0
 
 });
 
 
-db.connect((err) => {
+// ==================================================
+// DATABASE TEST
+// ==================================================
+
+db.getConnection((err, connection) => {
 
     if (err) {
 
         console.error(
             "MySQL connection failed:",
-            err
+            err.message
         );
 
         return;
+
     }
 
-    console.log(
-        "Connected to MySQL!"
-    );
+    console.log("Connected to MySQL!");
+
+    connection.release();
 
 });
+
+
+// ==================================================
+// CREATE TABLES
+// ==================================================
+
+function createTables() {
+
+    const createTourMates = `
+
+        CREATE TABLE IF NOT EXISTS tour_mates (
+
+            id INT AUTO_INCREMENT PRIMARY KEY,
+
+            name VARCHAR(255) NOT NULL
+
+        )
+
+    `;
+
+
+    db.query(createTourMates, (err) => {
+
+        if (err) {
+
+            console.error(
+                "Failed to create tour_mates table:",
+                err.message
+            );
+
+            return;
+
+        }
+
+        console.log(
+            "tour_mates table ready."
+        );
+
+
+        const createExpenses = `
+
+            CREATE TABLE IF NOT EXISTS expenses (
+
+                id INT AUTO_INCREMENT PRIMARY KEY,
+
+                description VARCHAR(255) NOT NULL,
+
+                amount DECIMAL(10,2) NOT NULL,
+
+                payer_id INT NOT NULL,
+
+                FOREIGN KEY (payer_id)
+                REFERENCES tour_mates(id)
+                ON DELETE CASCADE
+
+            )
+
+        `;
+
+
+        db.query(createExpenses, (err) => {
+
+            if (err) {
+
+                console.error(
+                    "Failed to create expenses table:",
+                    err.message
+                );
+
+                return;
+
+            }
+
+            console.log(
+                "expenses table ready."
+            );
+
+        });
+
+    });
+
+}
+
+
+createTables();
 
 
 // ==================================================
@@ -71,9 +176,13 @@ app.get("/", (req, res) => {
 app.get("/api/tourmates", (req, res) => {
 
     const sql = `
+
         SELECT *
+
         FROM tour_mates
+
         ORDER BY id ASC
+
     `;
 
 
@@ -81,7 +190,10 @@ app.get("/api/tourmates", (req, res) => {
 
         if (err) {
 
-            console.error(err);
+            console.error(
+                "Get tour mates error:",
+                err.message
+            );
 
             return res.status(500).json({
 
@@ -122,20 +234,30 @@ app.post("/api/tourmates", (req, res) => {
 
 
     const sql = `
+
         INSERT INTO tour_mates
+
         (name)
+
         VALUES (?)
+
     `;
 
 
     db.query(
+
         sql,
+
         [name.trim()],
+
         (err, result) => {
 
             if (err) {
 
-                console.error(err);
+                console.error(
+                    "Add tour mate error:",
+                    err.message
+                );
 
                 return res.status(500).json({
 
@@ -161,6 +283,7 @@ app.post("/api/tourmates", (req, res) => {
             });
 
         }
+
     );
 
 });
@@ -181,26 +304,32 @@ app.delete("/api/tourmates/:id", (req, res) => {
     );
 
 
-    // ----------------------------------------------
-    // First delete expenses of this person
-    // ----------------------------------------------
+    // Delete related expenses first.
+    // This also works even if foreign key
+    // is configured differently.
 
     const deleteExpenses = `
+
         DELETE FROM expenses
+
         WHERE payer_id = ?
+
     `;
 
 
     db.query(
+
         deleteExpenses,
+
         [id],
+
         (err) => {
 
             if (err) {
 
                 console.error(
                     "Delete expenses error:",
-                    err
+                    err.message
                 );
 
                 return res.status(500).json({
@@ -213,26 +342,28 @@ app.delete("/api/tourmates/:id", (req, res) => {
             }
 
 
-            // --------------------------------------
-            // Then delete tour mate
-            // --------------------------------------
-
             const deleteMate = `
+
                 DELETE FROM tour_mates
+
                 WHERE id = ?
+
             `;
 
 
             db.query(
+
                 deleteMate,
+
                 [id],
+
                 (err, result) => {
 
                     if (err) {
 
                         console.error(
                             "Delete mate error:",
-                            err
+                            err.message
                         );
 
                         return res.status(500).json({
@@ -273,9 +404,11 @@ app.delete("/api/tourmates/:id", (req, res) => {
                     });
 
                 }
+
             );
 
         }
+
     );
 
 });
@@ -299,8 +432,7 @@ app.get("/api/expenses", (req, res) => {
 
             expenses.payer_id,
 
-            tour_mates.name
-            AS payer_name
+            tour_mates.name AS payer_name
 
         FROM expenses
 
@@ -309,19 +441,23 @@ app.get("/api/expenses", (req, res) => {
         ON expenses.payer_id =
            tour_mates.id
 
-        ORDER BY
-            expenses.id ASC
+        ORDER BY expenses.id ASC
 
     `;
 
 
     db.query(
+
         sql,
+
         (err, results) => {
 
             if (err) {
 
-                console.error(err);
+                console.error(
+                    "Get expenses error:",
+                    err.message
+                );
 
                 return res.status(500).json({
 
@@ -336,6 +472,7 @@ app.get("/api/expenses", (req, res) => {
             res.json(results);
 
         }
+
     );
 
 });
@@ -359,9 +496,17 @@ app.post("/api/expenses", (req, res) => {
 
 
     if (
+
         !description ||
-        !amount ||
+
+        amount === undefined ||
+
+        amount === null ||
+
+        Number(amount) <= 0 ||
+
         !payerId
+
     ) {
 
         return res.status(400).json({
@@ -379,9 +524,13 @@ app.post("/api/expenses", (req, res) => {
         INSERT INTO expenses
 
         (
+
             description,
+
             amount,
+
             payer_id
+
         )
 
         VALUES (?, ?, ?)
@@ -394,16 +543,23 @@ app.post("/api/expenses", (req, res) => {
         sql,
 
         [
+
             description.trim(),
-            amount,
-            payerId
+
+            Number(amount),
+
+            Number(payerId)
+
         ],
 
         (err, result) => {
 
             if (err) {
 
-                console.error(err);
+                console.error(
+                    "Add expense error:",
+                    err.message
+                );
 
                 return res.status(500).json({
 
@@ -448,19 +604,28 @@ app.delete("/api/expenses/:id", (req, res) => {
 
 
     const sql = `
+
         DELETE FROM expenses
+
         WHERE id = ?
+
     `;
 
 
     db.query(
+
         sql,
+
         [id],
+
         (err, result) => {
 
             if (err) {
 
-                console.error(err);
+                console.error(
+                    "Delete expense error:",
+                    err.message
+                );
 
                 return res.status(500).json({
 
@@ -500,6 +665,7 @@ app.delete("/api/expenses/:id", (req, res) => {
             });
 
         }
+
     );
 
 });
@@ -516,24 +682,24 @@ app.delete("/api/reset", (req, res) => {
     );
 
 
-    // ----------------------------------------------
-    // Delete all expenses first
-    // ----------------------------------------------
-
     const deleteExpenses = `
+
         DELETE FROM expenses
+
     `;
 
 
     db.query(
+
         deleteExpenses,
+
         (err) => {
 
             if (err) {
 
                 console.error(
                     "Reset expenses error:",
-                    err
+                    err.message
                 );
 
                 return res.status(500).json({
@@ -546,24 +712,24 @@ app.delete("/api/reset", (req, res) => {
             }
 
 
-            // --------------------------------------
-            // Delete all tour mates
-            // --------------------------------------
-
             const deleteMates = `
+
                 DELETE FROM tour_mates
+
             `;
 
 
             db.query(
+
                 deleteMates,
+
                 (err) => {
 
                     if (err) {
 
                         console.error(
                             "Reset mates error:",
-                            err
+                            err.message
                         );
 
                         return res.status(500).json({
@@ -589,9 +755,11 @@ app.delete("/api/reset", (req, res) => {
                     });
 
                 }
+
             );
 
         }
+
     );
 
 });
@@ -601,16 +769,25 @@ app.delete("/api/reset", (req, res) => {
 // START SERVER
 // ==================================================
 
-const PORT = 3000;
+// Railway automatically gives us PORT.
+// Local computer-এ 3000 ব্যবহার হবে.
+
+const PORT =
+    process.env.PORT || 3000;
 
 
 app.listen(
+
     PORT,
+
     () => {
 
         console.log(
-            `Server running at http://localhost:${PORT}`
+
+            `Server running on port ${PORT}`
+
         );
 
     }
+
 );
