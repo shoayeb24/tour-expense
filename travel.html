@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tour Expense Calculator</title>
+    <style>
+        :root {
+            --primary-color: #1a6ae2;
+            --secondary-color: #03347c;
+            --light-color: #f0f4f8;
+            --dark-color: #050d15;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .card h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--light-color);
+            padding-bottom: 10px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .tourmate-list, .expense-list {
+            list-style-type: none;
+            margin-top: 15px;
+        }
+        
+        .tourmate-item, .expense-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .tourmate-item:last-child, .expense-item:last-child {
+            border-bottom: none;
+        }
+        
+        .tourmate-name {
+            font-weight: 600;
+        }
+        
+        .tourmate-amount {
+            color: var(--primary-color);
+        }
+        
+        .settlement-list {
+            margin-top: 20px;
+        }
+        
+        .settlement-item {
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .settlement-item.paid {
+            border-left-color: var(--success-color);
+            background-color: #e8f5e9;
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .summary-item {
+            text-align: center;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .summary-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .action-buttons button {
+            flex: 1;
+        }
+        
+        .balance-list {
+            margin-top: 20px;
+        }
+        
+        .balance-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            background-color: #f8f9fa;
+        }
+        
+        .balance-item.positive {
+            border-left: 4px solid var(--success-color);
+            background-color: #e8f5e9;
+        }
+        
+        .balance-item.negative {
+            border-left: 4px solid var(--danger-color);
+            background-color: #ffeaea;
+        }
+        
+        .balance-item.neutral {
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .balance-amount {
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+        
+        .positive .balance-amount {
+            color: var(--success-color);
+        }
+        
+        .negative .balance-amount {
+            color: var(--danger-color);
+        }
+        
+        .neutral .balance-amount {
+            color: var(--warning-color);
+        }
+        
+        .settlement-instruction {
+            margin-top: 5px;
+            font-size: 0.9rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Tour Expense Calculator</h1>
+            <p class="description">Track expenses and calculate who owes whom on your trips</p>
+        </header>
+        
+        <div class="app-container">
+            <!-- Input Section -->
+            <div class="input-section">
+                <!-- Add Tour Mates -->
+                <div class="card">
+                    <h2>Add Tour Mates</h2>
+                    <div class="input-group">
+                        <label for="tourmate-name">Name</label>
+                        <input type="text" id="tourmate-name" placeholder="Enter name">
+                    </div>
+                    <button id="add-tourmate">Add Tour Mate</button>
+                    
+                    <h3>Tour Mates</h3>
+                    <ul id="tourmate-list" class="tourmate-list">
+                        <li class="empty-state">No tour mates added yet</li>
+                    </ul>
+                </div>
+                
+                <!-- Add Expenses -->
+                <div class="card">
+                    <h2>Add Expenses</h2>
+                    <div class="input-group">
+                        <label for="expense-description">Description</label>
+                        <input type="text" id="expense-description" placeholder="What was this expense for?">
+                    </div>
+                    <div class="input-group">
+                        <label for="expense-amount">Amount</label>
+                        <input type="number" id="expense-amount" placeholder="Enter amount">
+                    </div>
+                    <div class="input-group">
+                        <label for="expense-payer">Paid By</label>
+                        <select id="expense-payer">
+                            <option value="">Select a tour mate</option>
+                        </select>
+                    </div>
+                    <button id="add-expense">Add Expense</button>
+                    
+                    <h3>Expenses</h3>
+                    <ul id="expense-list" class="expense-list">
+                        <li class="empty-state">No expenses added yet</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Results Section -->
+            <div class="results-section">
+                <!-- Summary -->
+                <div class="card">
+                    <h2>Summary</h2>
+                    <div class="summary">
+                        <div class="summary-item">
+                            <div>Total Tour Mates</div>
+                            <div class="summary-value" id="total-tourmates">0</div>
+                        </div>
+                        <div class="summary-item">
+                            <div>Total Expenses</div>
+                            <div class="summary-value" id="total-expenses">$0.00</div>
+                        </div>
+                        <div class="summary-item">
+                            <div>Per Person</div>
+                            <div class="summary-value" id="per-person">$0.00</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Individual Balances -->
+                <div class="card">
+                    <h2>Individual Balances</h2>
+                    <div id="balance-list" class="balance-list">
+                        <div class="empty-state">Add tour mates and expenses to see balances</div>
+                    </div>
+                </div>
+                
+                <!-- Settlements -->
+                <div class="card">
+                    <h2>Settlements</h2>
+                    <div id="settlement-list" class="settlement-list">
+                        <div class="empty-state">Add tour mates and expenses to see settlements</div>
+                    </div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="card">
+                    <h2>Actions</h2>
+                    <div class="action-buttons">
+                        <button id="calculate" class="btn-success">Calculate Settlements</button>
+                        <button id="reset" class="btn-danger">Reset All</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        let tourMates = [];
+        let expenses = [];
+        
+        // DOM Elements
+        const tourmateNameInput = document.getElementById('tourmate-name');
+        const addTourmateButton = document.getElementById('add-tourmate');
+        const tourmateList = document.getElementById('tourmate-list');
+        const expenseDescriptionInput = document.getElementById('expense-description');
+        const expenseAmountInput = document.getElementById('expense-amount');
+        const expensePayerSelect = document.getElementById('expense-payer');
+        const addExpenseButton = document.getElementById('add-expense');
+        const expenseList = document.getElementById('expense-list');
+        const totalTourmatesElement = document.getElementById('total-tourmates');
+        const totalExpensesElement = document.getElementById('total-expenses');
+        const perPersonElement = document.getElementById('per-person');
+        const balanceList = document.getElementById('balance-list');
+        const settlementList = document.getElementById('settlement-list');
+        const calculateButton = document.getElementById('calculate');
+        const resetButton = document.getElementById('reset');
+        
+        // Event Listeners
+        addTourmateButton.addEventListener('click', addTourmate);
+        addExpenseButton.addEventListener('click', addExpense);
+        calculateButton.addEventListener('click', calculateSettlements);
+        resetButton.addEventListener('click', resetAll);
+        
+        // Functions
+        function addTourmate() {
+            const name = tourmateNameInput.value.trim();
+            
+            if (name === '') {
+                alert('Please enter a name');
+                return;
+            }
+            
+            // Check if name already exists
+            if (tourMates.some(mate => mate.name.toLowerCase() === name.toLowerCase())) {
+                alert('Tour mate with this name already exists');
+                return;
+            }
+            
+            const newTourmate = {
+                id: Date.now().toString(),
+                name: name,
+                totalPaid: 0
+            };
+            
+            tourMates.push(newTourmate);
+            updateTourmateList();
+            updatePayerSelect();
+            updateSummary();
+            
+            // Clear input
+            tourmateNameInput.value = '';
+        }
+        
+        function addExpense() {
+            const description = expenseDescriptionInput.value.trim();
+            const amount = parseFloat(expenseAmountInput.value);
+            const payerId = expensePayerSelect.value;
+            
+            if (description === '') {
+                alert('Please enter a description');
+                return;
+            }
+            
+            if (isNaN(amount) || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            if (payerId === '') {
+                alert('Please select a payer');
+                return;
+            }
+            
+            const newExpense = {
+                id: Date.now().toString(),
+                description: description,
+                amount: amount,
+                payerId: payerId
+            };
+            
+            expenses.push(newExpense);
+            
+            // Update tourmate's total paid
+            const payer = tourMates.find(mate => mate.id === payerId);
+            if (payer) {
+                payer.totalPaid += amount;
+            }
+            
+            updateExpenseList();
+            updateSummary();
+            
+            // Clear inputs
+            expenseDescriptionInput.value = '';
+            expenseAmountInput.value = '';
+            expensePayerSelect.value = '';
+        }
+        
+        function updateTourmateList() {
+            if (tourMates.length === 0) {
+                tourmateList.innerHTML = '<li class="empty-state">No tour mates added yet</li>';
+                return;
+            }
+            
+            tourmateList.innerHTML = '';
+            
+            tourMates.forEach(mate => {
+                const listItem = document.createElement('li');
+                listItem.className = 'tourmate-item';
+                listItem.innerHTML = `
+                    <span class="tourmate-name">${mate.name}</span>
+                    <span class="tourmate-amount">$${mate.totalPaid.toFixed(2)}</span>
+                `;
+                tourmateList.appendChild(listItem);
+            });
+        }
+        
+        function updateExpenseList() {
+            if (expenses.length === 0) {
+                expenseList.innerHTML = '<li class="empty-state">No expenses added yet</li>';
+                return;
+            }
+            
+            expenseList.innerHTML = '';
+            
+            expenses.forEach(expense => {
+                const payer = tourMates.find(mate => mate.id === expense.payerId);
+                const listItem = document.createElement('li');
+                listItem.className = 'expense-item';
+                listItem.innerHTML = `
+                    <div>
+                        <strong>${expense.description}</strong>
+                        <div>Paid by: ${payer ? payer.name : 'Unknown'}</div>
+                    </div>
+                    <span class="tourmate-amount">$${expense.amount.toFixed(2)}</span>
+                `;
+                expenseList.appendChild(listItem);
+            });
+        }
+        
+        function updatePayerSelect() {
+            expensePayerSelect.innerHTML = '<option value="">Select a tour mate</option>';
+            
+            tourMates.forEach(mate => {
+                const option = document.createElement('option');
+                option.value = mate.id;
+                option.textContent = mate.name;
+                expensePayerSelect.appendChild(option);
+            });
+        }
+        
+        function updateSummary() {
+            totalTourmatesElement.textContent = tourMates.length;
+            
+            const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+            totalExpensesElement.textContent = `$${totalExpenses.toFixed(2)}`;
+            
+            const perPerson = tourMates.length > 0 ? totalExpenses / tourMates.length : 0;
+            perPersonElement.textContent = `$${perPerson.toFixed(2)}`;
+        }
+        
+        function calculateSettlements() {
+            if (tourMates.length === 0) {
+                balanceList.innerHTML = '<div class="empty-state">Add tour mates to calculate balances</div>';
+                settlementList.innerHTML = '<div class="empty-state">Add tour mates to calculate settlements</div>';
+                return;
+            }
+            
+            if (expenses.length === 0) {
+                balanceList.innerHTML = '<div class="empty-state">Add expenses to calculate balances</div>';
+                settlementList.innerHTML = '<div class="empty-state">Add expenses to calculate settlements</div>';
+                return;
+            }
+            
+            const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+            const perPerson = totalExpenses / tourMates.length;
+            
+            // Calculate balances for each tour mate
+            const balances = tourMates.map(mate => ({
+                id: mate.id,
+                name: mate.name,
+                balance: mate.totalPaid - perPerson
+            }));
+            
+            // Display individual balances
+            updateBalanceList(balances);
+            
+            // Sort by balance (negative first, then positive)
+            balances.sort((a, b) => a.balance - b.balance);
+            
+            // Calculate settlements
+            const settlements = [];
+            let i = 0;
+            let j = balances.length - 1;
+            
+            while (i < j) {
+                const debtor = balances[i];
+                const creditor = balances[j];
+                
+                const amount = Math.min(-debtor.balance, creditor.balance);
+                
+                if (amount > 0.01) { // Only add if amount is significant
+                    settlements.push({
+                        from: debtor.name,
+                        to: creditor.name,
+                        amount: amount
+                    });
+                }
+                
+                debtor.balance += amount;
+                creditor.balance -= amount;
+                
+                if (Math.abs(debtor.balance) < 0.01) i++;
+                if (Math.abs(creditor.balance) < 0.01) j--;
+            }
+            
+            // Display settlements
+            if (settlements.length === 0) {
+                settlementList.innerHTML = '<div class="settlement-item paid">All expenses are settled! No payments needed.</div>';
+            } else {
+                settlementList.innerHTML = '';
+                settlements.forEach(settlement => {
+                    const settlementItem = document.createElement('div');
+                    settlementItem.className = 'settlement-item';
+                    settlementItem.innerHTML = `
+                        <strong>${settlement.from}</strong> owes <strong>${settlement.to}</strong>
+                        <strong>$${settlement.amount.toFixed(2)}</strong>
+                    `;
+                    settlementList.appendChild(settlementItem);
+                });
+            }
+        }
+        
+        function updateBalanceList(balances) {
+            if (balances.length === 0) {
+                balanceList.innerHTML = '<div class="empty-state">No balances to display</div>';
+                return;
+            }
+            
+            balanceList.innerHTML = '';
+            
+            balances.forEach(balance => {
+                const balanceItem = document.createElement('div');
+                
+                let balanceClass = 'neutral';
+                let instruction = '';
+                
+                if (balance.balance > 0.01) {
+                    balanceClass = 'positive';
+                    instruction = `Gets back $${balance.balance.toFixed(2)}`;
+                } else if (balance.balance < -0.01) {
+                    balanceClass = 'negative';
+                    instruction = `Owes $${(-balance.balance).toFixed(2)}`;
+                } else {
+                    instruction = 'All settled up!';
+                }
+                
+                balanceItem.className = `balance-item ${balanceClass}`;
+                balanceItem.innerHTML = `
+                    <div>
+                        <div class="tourmate-name">${balance.name}</div>
+                        <div class="settlement-instruction">${instruction}</div>
+                    </div>
+                    <div class="balance-amount">$${balance.balance.toFixed(2)}</div>
+                `;
+                balanceList.appendChild(balanceItem);
+            });
+        }
+        
+        function resetAll() {
+            if (confirm('Are you sure you want to reset all data? This action cannot be undone.')) {
+                tourMates = [];
+                expenses = [];
+                updateTourmateList();
+                updateExpenseList();
+                updatePayerSelect();
+                updateSummary();
+                balanceList.innerHTML = '<div class="empty-state">Add tour mates and expenses to see balances</div>';
+                settlementList.innerHTML = '<div class="empty-state">Add tour mates and expenses to see settlements</div>';
+            }
+        }
+    </script>
+</body>
+</html>
