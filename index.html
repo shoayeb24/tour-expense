@@ -5,16 +5,12 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Tour Expense Calculator</title>
 
 
     <style>
-
         :root {
             --primary-color: #1a6ae2;
             --secondary-color: #03347c;
@@ -88,7 +84,7 @@
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, .1);
         }
 
 
@@ -198,7 +194,7 @@
         .summary {
 
             display: grid;
-            grid-template-columns: repeat(3,1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 15px;
 
         }
@@ -304,748 +300,1236 @@
         .actions button {
             flex: 1;
         }
-
     </style>
 
 </head>
 
 
+
 <body>
 
 
-<div class="container">
-
-
-<header>
-
-    <h1>Tour Expense Calculator</h1>
-
-    <p class="description">
-        Track expenses and calculate who owes whom
-    </p>
-
-</header>
-
-
-
-<div class="app-container">
-
-
-<!-- LEFT SIDE -->
-
-<div>
-
-
-<!-- TOUR MATES -->
-
-<div class="card">
-
-    <h2>Add Tour Mates</h2>
-
-
-    <div class="input-group">
-
-        <label>Name</label>
-
-        <input
-            type="text"
-            id="tourmate-name"
-            placeholder="Enter name"
-        >
-
-    </div>
-
-
-    <button id="add-tourmate">
-        Add Tour Mate
-    </button>
-
-
-    <h3 style="margin-top:20px">
-        Tour Mates
-    </h3>
-
-
-    <ul
-        id="tourmate-list"
-        class="list"
-    >
-
-        <li class="empty-state">
-            No tour mates added yet
-        </li>
-
-    </ul>
-
-</div>
-
-
-
-<!-- EXPENSE -->
-
-<div class="card">
-
-    <h2>Add Expense</h2>
-
-
-    <div class="input-group">
-
-        <label>Description</label>
-
-        <input
-            type="text"
-            id="expense-description"
-            placeholder="What was this expense for?"
-        >
-
-    </div>
-
-
-    <div class="input-group">
-
-        <label>Amount</label>
-
-        <input
-            type="number"
-            id="expense-amount"
-            placeholder="Enter amount"
-        >
-
-    </div>
-
-
-    <div class="input-group">
-
-        <label>Paid By</label>
-
-        <select id="expense-payer">
-
-            <option value="">
-                Select a tour mate
-            </option>
-
-        </select>
-
-    </div>
-
-
-    <button id="add-expense">
-        Add Expense
-    </button>
-
-
-    <h3 style="margin-top:20px">
-        Expenses
-    </h3>
-
-
-    <ul
-        id="expense-list"
-        class="list"
-    >
-
-        <li class="empty-state">
-            No expenses added yet
-        </li>
-
-    </ul>
-
-</div>
-
-</div>
-
-
-
-<!-- RIGHT SIDE -->
-
-<div>
-
-
-<!-- SUMMARY -->
-
-<div class="card">
-
-    <h2>Summary</h2>
-
-
-    <div class="summary">
-
-
-        <div class="summary-item">
-
-            <div>Total Tour Mates</div>
-
-            <div
-                class="summary-value"
-                id="total-tourmates"
-            >
-                0
-            </div>
+    <!-- ==========================================
+     AUTH SCREEN
+========================================== -->
+
+    <div id="auth-screen" style="
+    max-width: 450px;
+    margin: 60px auto;
+    padding: 30px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,.12);
+">
+
+        <h2 id="auth-title" style="
+            text-align:center;
+            color: var(--primary-color);
+            margin-bottom:25px;
+        ">
+            Login
+        </h2>
+
+
+        <!-- SIGN UP NAME -->
+
+        <div id="signup-name-group" class="input-group" style="display:none;">
+
+            <label>Name</label>
+
+            <input type="text" id="signup-name" placeholder="Enter your name">
 
         </div>
 
 
+        <!-- EMAIL -->
 
-        <div class="summary-item">
+        <div class="input-group">
 
-            <div>Total Expenses</div>
+            <label>Email</label>
 
-            <div
-                class="summary-value"
-                id="total-expenses"
-            >
-                $0.00
-            </div>
+            <input type="email" id="auth-email" placeholder="Enter your email">
 
         </div>
 
 
+        <!-- PASSWORD -->
 
-        <div class="summary-item">
+        <div class="input-group">
 
-            <div>Per Person</div>
+            <label>Password</label>
 
-            <div
-                class="summary-value"
-                id="per-person"
-            >
-                $0.00
-            </div>
+            <input type="password" id="auth-password" placeholder="Enter your password">
 
         </div>
 
 
-    </div>
+        <!-- BUTTON -->
 
-</div>
-
-
-
-<!-- BALANCE -->
-
-<div class="card">
-
-    <h2>Individual Balances</h2>
-
-    <div id="balance-list">
-
-        <div class="empty-state">
-
-            Add tour mates and expenses
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- SETTLEMENT -->
-
-<div class="card">
-
-    <h2>Settlements</h2>
-
-    <div id="settlement-list">
-
-        <div class="empty-state">
-
-            Add expenses to see settlements
-
-        </div>
-
-    </div>
-
-</div>
-
-
-
-<!-- ACTION -->
-
-<div class="card">
-
-    <h2>Actions</h2>
-
-
-    <div class="actions">
-
-        <button
-            id="calculate"
-            class="btn-success"
-        >
-            Calculate
+        <button id="auth-button" style="width:100%;">
+            Login
         </button>
 
 
-        <button
-            id="reset"
-            class="btn-danger"
-        >
-            Reset All
-        </button>
+        <!-- ERROR -->
+
+        <p id="auth-message" style="
+            margin-top:15px;
+            text-align:center;
+            color:var(--danger-color);
+        "></p>
+
+
+        <!-- SWITCH -->
+
+        <p style="
+        text-align:center;
+        margin-top:20px;
+    ">
+
+            <span id="auth-switch-text">
+                Don't have an account?
+            </span>
+
+            <button id="auth-switch" style="
+                background:none;
+                color:var(--primary-color);
+                padding:0;
+                margin-left:5px;
+            ">
+                Sign Up
+            </button>
+
+        </p>
 
     </div>
 
-</div>
 
 
-</div>
+    <div class="container">
 
-</div>
 
-</div>
+        <header>
 
+            <h1>Tour Expense Calculator</h1>
 
+            <p class="description">
+                Track expenses and calculate who owes whom
+            </p>
 
-<script>
+        </header>
 
 
-// ==========================================
-// API URL
-// ==========================================
 
-const API = "https://tour-expense-production-18bb.up.railway.app";
+        <div class="app-container">
 
 
-// ==========================================
-// DATA
-// ==========================================
+            <!-- LEFT SIDE -->
 
-let tourMates = [];
-let expenses = [];
+            <div>
 
 
-// ==========================================
-// ELEMENTS
-// ==========================================
+                <!-- TOUR MATES -->
 
-const tourmateName =
-    document.getElementById("tourmate-name");
+                <div class="card">
 
-const addTourmate =
-    document.getElementById("add-tourmate");
+                    <h2>Add Tour Mates</h2>
 
-const tourmateList =
-    document.getElementById("tourmate-list");
 
+                    <div class="input-group">
 
-const expenseDescription =
-    document.getElementById("expense-description");
+                        <label>Name</label>
 
-const expenseAmount =
-    document.getElementById("expense-amount");
+                        <input type="text" id="tourmate-name" placeholder="Enter name">
 
-const expensePayer =
-    document.getElementById("expense-payer");
+                    </div>
 
-const addExpense =
-    document.getElementById("add-expense");
 
-const expenseList =
-    document.getElementById("expense-list");
+                    <button id="add-tourmate">
+                        Add Tour Mate
+                    </button>
 
 
-const totalTourmates =
-    document.getElementById("total-tourmates");
+                    <h3 style="margin-top:20px">
+                        Tour Mates
+                    </h3>
 
-const totalExpenses =
-    document.getElementById("total-expenses");
 
-const perPerson =
-    document.getElementById("per-person");
+                    <ul id="tourmate-list" class="list">
 
+                        <li class="empty-state">
+                            No tour mates added yet
+                        </li>
 
-const balanceList =
-    document.getElementById("balance-list");
+                    </ul>
 
-const settlementList =
-    document.getElementById("settlement-list");
+                </div>
 
 
-const calculate =
-    document.getElementById("calculate");
 
-const reset =
-    document.getElementById("reset");
+                <!-- EXPENSE -->
 
+                <div class="card">
 
+                    <h2>Add Expense</h2>
 
-// ==========================================
-// LOAD DATA
-// ==========================================
 
-async function loadData() {
+                    <div class="input-group">
 
-    try {
+                        <label>Description</label>
 
-        const matesResponse =
-            await fetch(`${API}/api/tourmates`);
+                        <input type="text" id="expense-description" placeholder="What was this expense for?">
 
-        const expensesResponse =
-            await fetch(`${API}/api/expenses`);
+                    </div>
 
 
-        if (!matesResponse.ok ||
-            !expensesResponse.ok) {
+                    <div class="input-group">
 
-            throw new Error("Server error");
+                        <label>Amount</label>
 
-        }
+                        <input type="number" id="expense-amount" placeholder="Enter amount">
 
+                    </div>
 
-        tourMates =
-            await matesResponse.json();
 
-        expenses =
-            await expensesResponse.json();
+                    <div class="input-group">
 
+                        <label>Paid By</label>
 
-        updateAll();
+                        <select id="expense-payer">
 
+                            <option value="">
+                                Select a tour mate
+                            </option>
 
-    } catch (error) {
+                        </select>
 
-        console.error(error);
+                    </div>
 
-        alert(
-            "Server connection failed!\n\n" +
-            "Make sure server.js is running."
-        );
 
-    }
+                    <button id="add-expense">
+                        Add Expense
+                    </button>
 
-}
 
+                    <h3 style="margin-top:20px">
+                        Expenses
+                    </h3>
 
 
-// ==========================================
-// ADD TOUR MATE
-// ==========================================
+                    <ul id="expense-list" class="list">
 
-async function addTourMateFunction() {
+                        <li class="empty-state">
+                            No expenses added yet
+                        </li>
 
-    const name =
-        tourmateName.value.trim();
+                    </ul>
 
+                </div>
 
-    if (!name) {
+            </div>
 
-        alert("Please enter a name");
 
-        return;
 
-    }
+            <!-- RIGHT SIDE -->
 
+            <div>
 
-    try {
 
-        const response =
-            await fetch(`${API}/api/tourmates`, {
+                <!-- SUMMARY -->
 
-                method: "POST",
+                <div class="card">
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                    <h2>Summary</h2>
 
-                body: JSON.stringify({
-                    name: name
-                })
 
-            });
+                    <div class="summary">
 
 
-        const data =
-            await response.json();
+                        <div class="summary-item">
 
+                            <div>Total Tour Mates</div>
 
-        if (!response.ok) {
+                            <div class="summary-value" id="total-tourmates">
+                                0
+                            </div>
 
-            alert(data.error);
+                        </div>
 
-            return;
 
-        }
 
+                        <div class="summary-item">
 
-        tourmateName.value = "";
+                            <div>Total Expenses</div>
 
+                            <div class="summary-value" id="total-expenses">
+                                $0.00
+                            </div>
 
-        await loadData();
+                        </div>
 
 
-    } catch (error) {
 
-        console.error(error);
+                        <div class="summary-item">
 
-        alert("Server connection failed!");
+                            <div>Per Person</div>
 
-    }
+                            <div class="summary-value" id="per-person">
+                                $0.00
+                            </div>
 
-}
+                        </div>
 
 
+                    </div>
 
-// ==========================================
-// DELETE TOUR MATE
-// ==========================================
+                </div>
 
-async function deleteTourMate(id) {
 
-    if (
-        !confirm(
-            "Are you sure you want to delete this tour mate?\n" +
-            "Their related expenses will also be deleted."
-        )
-    ) {
 
-        return;
+                <!-- BALANCE -->
 
-    }
+                <div class="card">
 
+                    <h2>Individual Balances</h2>
 
-    try {
+                    <div id="balance-list">
 
-        const response =
-            await fetch(
-                `${API}/api/tourmates/${id}`,
-                {
-                    method: "DELETE"
-                }
+                        <div class="empty-state">
+
+                            Add tour mates and expenses
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- SETTLEMENT -->
+
+                <div class="card">
+
+                    <h2>Settlements</h2>
+
+                    <div id="settlement-list">
+
+                        <div class="empty-state">
+
+                            Add expenses to see settlements
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+                <!-- ACTION -->
+
+                <div class="card">
+
+                    <h2>Actions</h2>
+
+
+                    <div class="actions">
+
+                        <button id="calculate" class="btn-success">
+                            Calculate
+                        </button>
+
+
+                        <button id="reset" class="btn-danger">
+                            Reset All
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+
+
+        // ==========================================
+        // LOGOUT
+        // ==========================================
+
+        function logout() {
+
+            localStorage.removeItem(
+                "tourExpenseToken"
+            );
+
+            localStorage.removeItem(
+                "tourExpenseUser"
             );
 
 
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            alert(data.error);
-
-            return;
+            location.reload();
 
         }
 
 
-        await loadData();
+        // ==========================================
+        // AUTHENTICATION
+        // ==========================================
 
-    } catch (error) {
+        let isLoginMode = true;
 
-        console.error(error);
 
-        alert("Server connection failed!");
+        // Elements
 
-    }
+        const authScreen =
+            document.getElementById("auth-screen");
 
-}
+        const authTitle =
+            document.getElementById("auth-title");
 
+        const signupNameGroup =
+            document.getElementById("signup-name-group");
 
+        const signupName =
+            document.getElementById("signup-name");
 
-// ==========================================
-// ADD EXPENSE
-// ==========================================
+        const authEmail =
+            document.getElementById("auth-email");
 
-async function addExpenseFunction() {
+        const authPassword =
+            document.getElementById("auth-password");
 
-    const description =
-        expenseDescription.value.trim();
+        const authButton =
+            document.getElementById("auth-button");
 
-    const amount =
-        parseFloat(expenseAmount.value);
+        const authMessage =
+            document.getElementById("auth-message");
 
-    const payerId =
-        expensePayer.value;
+        const authSwitch =
+            document.getElementById("auth-switch");
 
+        const authSwitchText =
+            document.getElementById("auth-switch-text");
 
-    if (!description) {
 
-        alert("Please enter description");
+        // ==========================================
+        // SWITCH LOGIN / SIGNUP
+        // ==========================================
 
-        return;
+        authSwitch.addEventListener("click", () => {
 
-    }
+            isLoginMode = !isLoginMode;
 
+            authMessage.textContent = "";
 
-    if (isNaN(amount) || amount <= 0) {
+            signupName.value = "";
+            authEmail.value = "";
+            authPassword.value = "";
 
-        alert("Please enter a valid amount");
 
-        return;
+            if (isLoginMode) {
 
-    }
+                authTitle.textContent = "Login";
 
+                signupNameGroup.style.display = "none";
 
-    if (!payerId) {
+                authButton.textContent = "Login";
 
-        alert("Please select payer");
+                authSwitchText.textContent =
+                    "Don't have an account?";
 
-        return;
+                authSwitch.textContent =
+                    "Sign Up";
 
-    }
+            }
 
+            else {
 
-    try {
+                authTitle.textContent = "Create Account";
 
-        const response =
-            await fetch(`${API}/api/expenses`, {
+                signupNameGroup.style.display = "block";
 
-                method: "POST",
+                authButton.textContent = "Sign Up";
 
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                authSwitchText.textContent =
+                    "Already have an account?";
 
-                body: JSON.stringify({
+                authSwitch.textContent =
+                    "Login";
 
-                    description: description,
+            }
 
-                    amount: amount,
+        });
 
-                    payerId: payerId
 
-                })
+        // ==========================================
+        // LOGIN / SIGNUP
+        // ==========================================
 
-            });
+        authButton.addEventListener("click", async () => {
 
+            const email =
+                authEmail.value.trim();
 
-        const data =
-            await response.json();
+            const password =
+                authPassword.value;
 
 
-        if (!response.ok) {
+            // --------------------------------------
+            // SIGNUP
+            // --------------------------------------
 
-            alert(data.error);
+            if (!isLoginMode) {
 
-            return;
+                const name =
+                    signupName.value.trim();
 
-        }
 
+                if (!name) {
 
-        expenseDescription.value = "";
+                    authMessage.textContent =
+                        "Please enter your name.";
 
-        expenseAmount.value = "";
+                    return;
 
-        expensePayer.value = "";
-
-
-        await loadData();
-
-
-    } catch (error) {
-
-        console.error(error);
-
-        alert("Server connection failed!");
-
-    }
-
-}
-
-
-
-// ==========================================
-// DELETE EXPENSE
-// ==========================================
-
-async function deleteExpense(id) {
-
-    if (!confirm("Delete this expense?")) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API}/api/expenses/${id}`,
-                {
-                    method: "DELETE"
                 }
-            );
 
 
-        const data =
-            await response.json();
+                if (!email || !password) {
+
+                    authMessage.textContent =
+                        "Please enter email and password.";
+
+                    return;
+
+                }
 
 
-        if (!response.ok) {
+                try {
 
-            alert(data.error);
+                    const response =
+                        await fetch(
+                            `${API}/api/signup`,
+                            {
 
-            return;
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body: JSON.stringify({
+
+                                    name: name,
+
+                                    email: email,
+
+                                    password: password
+
+                                })
+
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (!response.ok) {
+
+                        authMessage.textContent =
+                            data.error ||
+                            "Signup failed.";
+
+                        return;
+
+                    }
+
+
+                    alert(
+                        "Account created successfully!\n\nNow login."
+                    );
+
+
+                    // Switch to login
+
+                    isLoginMode = true;
+
+                    authTitle.textContent =
+                        "Login";
+
+                    signupNameGroup.style.display =
+                        "none";
+
+                    authButton.textContent =
+                        "Login";
+
+                    authSwitchText.textContent =
+                        "Don't have an account?";
+
+                    authSwitch.textContent =
+                        "Sign Up";
+
+                    signupName.value = "";
+                    authPassword.value = "";
+
+                }
+
+                catch (error) {
+
+                    console.error(error);
+
+                    authMessage.textContent =
+                        "Server connection failed.";
+
+                }
+
+                return;
+
+            }
+
+
+            // --------------------------------------
+            // LOGIN
+            // --------------------------------------
+
+            if (!email || !password) {
+
+                authMessage.textContent =
+                    "Please enter email and password.";
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `${API}/api/login`,
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body: JSON.stringify({
+
+                                email: email,
+
+                                password: password
+
+                            })
+
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    authMessage.textContent =
+                        data.error ||
+                        "Login failed.";
+
+                    return;
+
+                }
+
+
+                // Save JWT token
+
+                localStorage.setItem(
+                    "tourExpenseToken",
+                    data.token
+                );
+
+
+                // Save user information
+
+                localStorage.setItem(
+                    "tourExpenseUser",
+                    JSON.stringify(data.user)
+                );
+
+
+                // Hide login screen
+
+                authScreen.style.display =
+                    "none";
+
+
+                // Load user's data
+
+                loadData();
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                authMessage.textContent =
+                    "Server connection failed.";
+
+            }
+
+        });
+
+
+
+        // ==========================================
+        // API URL
+        // ==========================================
+
+        const API = "https://tour-expense-production-18bb.up.railway.app";
+
+
+
+        // ==========================================
+        // JWT AUTHENTICATION HELPER
+        // ==========================================
+
+        function getAuthHeaders() {
+
+            const token =
+                localStorage.getItem("tourExpenseToken");
+
+            return {
+
+                "Content-Type":
+                    "application/json",
+
+                "Authorization":
+                    `Bearer ${token}`
+
+            };
+
+        };
+
+
+
+
+        // ==========================================
+        // DATA
+        // ==========================================
+
+        let tourMates = [];
+        let expenses = [];
+
+
+        // ==========================================
+        // ELEMENTS
+        // ==========================================
+
+        const tourmateName =
+            document.getElementById("tourmate-name");
+
+        const addTourmate =
+            document.getElementById("add-tourmate");
+
+        const tourmateList =
+            document.getElementById("tourmate-list");
+
+
+        const expenseDescription =
+            document.getElementById("expense-description");
+
+        const expenseAmount =
+            document.getElementById("expense-amount");
+
+        const expensePayer =
+            document.getElementById("expense-payer");
+
+        const addExpense =
+            document.getElementById("add-expense");
+
+        const expenseList =
+            document.getElementById("expense-list");
+
+
+        const totalTourmates =
+            document.getElementById("total-tourmates");
+
+        const totalExpenses =
+            document.getElementById("total-expenses");
+
+        const perPerson =
+            document.getElementById("per-person");
+
+
+        const balanceList =
+            document.getElementById("balance-list");
+
+        const settlementList =
+            document.getElementById("settlement-list");
+
+
+        const calculate =
+            document.getElementById("calculate");
+
+        const reset =
+            document.getElementById("reset");
+
+
+
+        // ==========================================
+        // LOAD DATA
+        // ==========================================
+
+        async function loadData() {
+
+            try {
+
+
+                async function loadData() {
+
+                    try {
+
+                        const matesResponse =
+                            await fetch(
+                                `${API}/api/tourmates`,
+                                {
+                                    headers:
+                                        getAuthHeaders()
+                                }
+                            );
+
+
+                        const expensesResponse =
+                            await fetch(
+                                `${API}/api/expenses`,
+                                {
+                                    headers:
+                                        getAuthHeaders()
+                                }
+                            );
+
+
+                        // Token invalid / expired
+
+                        if (
+                            matesResponse.status === 401 ||
+                            matesResponse.status === 403
+                        ) {
+
+                            logout();
+
+                            return;
+
+                        }
+
+
+                        if (
+                            !matesResponse.ok ||
+                            !expensesResponse.ok
+                        ) {
+
+                            throw new Error(
+                                "Server error"
+                            );
+
+                        }
+
+
+                        tourMates =
+                            await matesResponse.json();
+
+                        expenses =
+                            await expensesResponse.json();
+
+
+                        updateAll();
+
+
+                    } catch (error) {
+
+                        console.error(error);
+
+                        alert(
+                            "Server connection failed!"
+                        );
+
+                    }
+
+                }
+
+
+
+
+                if (!matesResponse.ok ||
+                    !expensesResponse.ok) {
+
+                    throw new Error("Server error");
+
+                }
+
+
+                tourMates =
+                    await matesResponse.json();
+
+                expenses =
+                    await expensesResponse.json();
+
+
+                updateAll();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert(
+                    "Server connection failed!\n\n" +
+                    "Make sure server.js is running."
+                );
+
+            }
 
         }
 
 
-        await loadData();
+
+        // ==========================================
+        // ADD TOUR MATE
+        // ==========================================
+
+        async function addTourMateFunction() {
+
+            const name =
+                tourmateName.value.trim();
 
 
-    } catch (error) {
+            if (!name) {
 
-        console.error(error);
+                alert("Please enter a name");
 
-        alert("Server connection failed!");
+                return;
 
-    }
-
-}
+            }
 
 
+            try {
 
-// ==========================================
-// UPDATE ALL
-// ==========================================
+                const response =
+                    await fetch(`${API}/api/tourmates`, {
 
-function updateAll() {
+                        method: "POST",
 
-    updateTourmateList();
+                        headers: getAuthHeaders(),
 
-    updateExpenseList();
+                        body: JSON.stringify({
+                            name: name
+                        })
 
-    updatePayerSelect();
-
-    updateSummary();
-
-}
+                    });
 
 
+                const data =
+                    await response.json();
 
-// ==========================================
-// TOUR MATE LIST
-// ==========================================
 
-function updateTourmateList() {
+                if (!response.ok) {
 
-    if (tourMates.length === 0) {
+                    alert(data.error);
 
-        tourmateList.innerHTML =
-            `<li class="empty-state">
+                    return;
+
+                }
+
+
+                tourmateName.value = "";
+
+
+                await loadData();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert("Server connection failed!");
+
+            }
+
+        }
+
+
+
+        // ==========================================
+        // DELETE TOUR MATE
+        // ==========================================
+
+        async function deleteTourMate(id) {
+
+            if (
+                !confirm(
+                    "Are you sure you want to delete this tour mate?\n" +
+                    "Their related expenses will also be deleted."
+                )
+            ) {
+
+                return;
+
+            }
+
+
+            try {
+
+
+                const response =
+                    await fetch(
+                        `${API}/api/tourmates/${id}`,
+                        {
+                            method: "DELETE",
+                            headers: getAuthHeaders()
+                        }
+                    );
+
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    alert(data.error);
+
+                    return;
+
+                }
+
+
+                await loadData();
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert("Server connection failed!");
+
+            }
+
+        }
+
+
+
+        // ==========================================
+        // ADD EXPENSE
+        // ==========================================
+
+        async function addExpenseFunction() {
+
+            const description =
+                expenseDescription.value.trim();
+
+            const amount =
+                parseFloat(expenseAmount.value);
+
+            const payerId =
+                expensePayer.value;
+
+
+            if (!description) {
+
+                alert("Please enter description");
+
+                return;
+
+            }
+
+
+            if (isNaN(amount) || amount <= 0) {
+
+                alert("Please enter a valid amount");
+
+                return;
+
+            }
+
+
+            if (!payerId) {
+
+                alert("Please select payer");
+
+                return;
+
+            }
+
+
+            try {
+
+                const response =
+                    await fetch(`${API}/api/expenses`, {
+
+                        method: "POST",
+
+                        headers: getAuthHeaders(),
+
+                        body: JSON.stringify({
+
+                            description: description,
+
+                            amount: amount,
+
+                            payerId: payerId
+
+                        })
+
+                    });
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    alert(data.error);
+
+                    return;
+
+                }
+
+
+                expenseDescription.value = "";
+
+                expenseAmount.value = "";
+
+                expensePayer.value = "";
+
+
+                await loadData();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert("Server connection failed!");
+
+            }
+
+        }
+
+
+
+        // ==========================================
+        // DELETE EXPENSE
+        // ==========================================
+
+        async function deleteExpense(id) {
+
+            if (!confirm("Delete this expense?")) {
+
+                return;
+
+            }
+
+
+            try {
+
+                const response = await fetch(`${API}/api/expenses/${id}`, { method: "DELETE", headers: getAuthHeaders() });
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    alert(data.error);
+
+                    return;
+
+                }
+
+
+                await loadData();
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                alert("Server connection failed!");
+
+            }
+
+        }
+
+
+
+        // ==========================================
+        // UPDATE ALL
+        // ==========================================
+
+        function updateAll() {
+
+            updateTourmateList();
+
+            updateExpenseList();
+
+            updatePayerSelect();
+
+            updateSummary();
+
+        }
+
+
+
+        // ==========================================
+        // TOUR MATE LIST
+        // ==========================================
+
+        function updateTourmateList() {
+
+            if (tourMates.length === 0) {
+
+                tourmateList.innerHTML =
+                    `<li class="empty-state">
                 No tour mates added yet
             </li>`;
 
-        return;
+                return;
 
-    }
-
-
-    tourmateList.innerHTML = "";
+            }
 
 
-    tourMates.forEach(mate => {
-
-        const li =
-            document.createElement("li");
+            tourmateList.innerHTML = "";
 
 
-        li.className = "list-item";
+            tourMates.forEach(mate => {
+
+                const li =
+                    document.createElement("li");
 
 
-        li.innerHTML = `
+                li.className = "list-item";
+
+
+                li.innerHTML = `
 
             <span>
                 <strong>${mate.name}</strong>
@@ -1061,45 +1545,45 @@ function updateTourmateList() {
         `;
 
 
-        tourmateList.appendChild(li);
+                tourmateList.appendChild(li);
 
-    });
+            });
 
-}
+        }
 
 
 
-// ==========================================
-// EXPENSE LIST
-// ==========================================
+        // ==========================================
+        // EXPENSE LIST
+        // ==========================================
 
-function updateExpenseList() {
+        function updateExpenseList() {
 
-    if (expenses.length === 0) {
+            if (expenses.length === 0) {
 
-        expenseList.innerHTML =
-            `<li class="empty-state">
+                expenseList.innerHTML =
+                    `<li class="empty-state">
                 No expenses added yet
             </li>`;
 
-        return;
+                return;
 
-    }
-
-
-    expenseList.innerHTML = "";
+            }
 
 
-    expenses.forEach(expense => {
-
-        const li =
-            document.createElement("li");
+            expenseList.innerHTML = "";
 
 
-        li.className = "list-item";
+            expenses.forEach(expense => {
+
+                const li =
+                    document.createElement("li");
 
 
-        li.innerHTML = `
+                li.className = "list-item";
+
+
+                li.innerHTML = `
 
             <div>
 
@@ -1129,21 +1613,21 @@ function updateExpenseList() {
         `;
 
 
-        expenseList.appendChild(li);
+                expenseList.appendChild(li);
 
-    });
+            });
 
-}
+        }
 
 
 
-// ==========================================
-// PAYER SELECT
-// ==========================================
+        // ==========================================
+        // PAYER SELECT
+        // ==========================================
 
-function updatePayerSelect() {
+        function updatePayerSelect() {
 
-    expensePayer.innerHTML = `
+            expensePayer.innerHTML = `
 
         <option value="">
             Select a tour mate
@@ -1152,208 +1636,208 @@ function updatePayerSelect() {
     `;
 
 
-    tourMates.forEach(mate => {
+            tourMates.forEach(mate => {
 
-        const option =
-            document.createElement("option");
+                const option =
+                    document.createElement("option");
 
 
-        option.value = mate.id;
+                option.value = mate.id;
 
-        option.textContent =
-            mate.name;
+                option.textContent =
+                    mate.name;
 
 
-        expensePayer.appendChild(option);
-
-    });
-
-}
-
-
-
-// ==========================================
-// SUMMARY
-// ==========================================
-
-function updateSummary() {
-
-    totalTourmates.textContent =
-        tourMates.length;
-
-
-    const total =
-        expenses.reduce(
-            (sum, expense) =>
-                sum + Number(expense.amount),
-            0
-        );
-
-
-    totalExpenses.textContent =
-        `$${total.toFixed(2)}`;
-
-
-    const per =
-        tourMates.length > 0
-            ? total / tourMates.length
-            : 0;
-
-
-    perPerson.textContent =
-        `$${per.toFixed(2)}`;
-
-}
-
-
-
-// ==========================================
-// CALCULATE
-// ==========================================
-
-function calculateSettlements() {
-
-    if (tourMates.length === 0) {
-
-        alert("Add tour mates first");
-
-        return;
-
-    }
-
-
-    if (expenses.length === 0) {
-
-        alert("Add expenses first");
-
-        return;
-
-    }
-
-
-    const total =
-        expenses.reduce(
-            (sum, expense) =>
-                sum + Number(expense.amount),
-            0
-        );
-
-
-    const each =
-        total / tourMates.length;
-
-
-    const balances =
-        tourMates.map(mate => {
-
-            const paid =
-                expenses
-                    .filter(
-                        e =>
-                            Number(e.payer_id)
-                            === Number(mate.id)
-                    )
-                    .reduce(
-                        (sum, e) =>
-                            sum + Number(e.amount),
-                        0
-                    );
-
-
-            return {
-
-                id: mate.id,
-
-                name: mate.name,
-
-                balance: paid - each
-
-            };
-
-        });
-
-
-    updateBalanceList(balances);
-
-
-    const working =
-        balances.map(b => ({
-            ...b
-        }));
-
-
-    working.sort(
-        (a, b) =>
-            a.balance - b.balance
-    );
-
-
-    const settlements = [];
-
-    let i = 0;
-
-    let j = working.length - 1;
-
-
-    while (i < j) {
-
-        const debtor = working[i];
-
-        const creditor = working[j];
-
-
-        const amount =
-            Math.min(
-                -debtor.balance,
-                creditor.balance
-            );
-
-
-        if (amount > 0.01) {
-
-            settlements.push({
-
-                from: debtor.name,
-
-                to: creditor.name,
-
-                amount: amount
+                expensePayer.appendChild(option);
 
             });
 
         }
 
 
-        debtor.balance += amount;
 
-        creditor.balance -= amount;
+        // ==========================================
+        // SUMMARY
+        // ==========================================
+
+        function updateSummary() {
+
+            totalTourmates.textContent =
+                tourMates.length;
 
 
-        if (
-            Math.abs(debtor.balance)
-            < 0.01
-        ) {
+            const total =
+                expenses.reduce(
+                    (sum, expense) =>
+                        sum + Number(expense.amount),
+                    0
+                );
 
-            i++;
+
+            totalExpenses.textContent =
+                `$${total.toFixed(2)}`;
+
+
+            const per =
+                tourMates.length > 0
+                    ? total / tourMates.length
+                    : 0;
+
+
+            perPerson.textContent =
+                `$${per.toFixed(2)}`;
 
         }
 
 
-        if (
-            Math.abs(creditor.balance)
-            < 0.01
-        ) {
 
-            j--;
+        // ==========================================
+        // CALCULATE
+        // ==========================================
 
-        }
+        function calculateSettlements() {
 
-    }
+            if (tourMates.length === 0) {
+
+                alert("Add tour mates first");
+
+                return;
+
+            }
 
 
-    if (settlements.length === 0) {
+            if (expenses.length === 0) {
 
-        settlementList.innerHTML = `
+                alert("Add expenses first");
+
+                return;
+
+            }
+
+
+            const total =
+                expenses.reduce(
+                    (sum, expense) =>
+                        sum + Number(expense.amount),
+                    0
+                );
+
+
+            const each =
+                total / tourMates.length;
+
+
+            const balances =
+                tourMates.map(mate => {
+
+                    const paid =
+                        expenses
+                            .filter(
+                                e =>
+                                    Number(e.payer_id)
+                                    === Number(mate.id)
+                            )
+                            .reduce(
+                                (sum, e) =>
+                                    sum + Number(e.amount),
+                                0
+                            );
+
+
+                    return {
+
+                        id: mate.id,
+
+                        name: mate.name,
+
+                        balance: paid - each
+
+                    };
+
+                });
+
+
+            updateBalanceList(balances);
+
+
+            const working =
+                balances.map(b => ({
+                    ...b
+                }));
+
+
+            working.sort(
+                (a, b) =>
+                    a.balance - b.balance
+            );
+
+
+            const settlements = [];
+
+            let i = 0;
+
+            let j = working.length - 1;
+
+
+            while (i < j) {
+
+                const debtor = working[i];
+
+                const creditor = working[j];
+
+
+                const amount =
+                    Math.min(
+                        -debtor.balance,
+                        creditor.balance
+                    );
+
+
+                if (amount > 0.01) {
+
+                    settlements.push({
+
+                        from: debtor.name,
+
+                        to: creditor.name,
+
+                        amount: amount
+
+                    });
+
+                }
+
+
+                debtor.balance += amount;
+
+                creditor.balance -= amount;
+
+
+                if (
+                    Math.abs(debtor.balance)
+                    < 0.01
+                ) {
+
+                    i++;
+
+                }
+
+
+                if (
+                    Math.abs(creditor.balance)
+                    < 0.01
+                ) {
+
+                    j--;
+
+                }
+
+            }
+
+
+            if (settlements.length === 0) {
+
+                settlementList.innerHTML = `
 
             <div class="settlement-item">
 
@@ -1363,25 +1847,25 @@ function calculateSettlements() {
 
         `;
 
-        return;
+                return;
 
-    }
-
-
-    settlementList.innerHTML = "";
+            }
 
 
-    settlements.forEach(s => {
-
-        const div =
-            document.createElement("div");
+            settlementList.innerHTML = "";
 
 
-        div.className =
-            "settlement-item";
+            settlements.forEach(s => {
+
+                const div =
+                    document.createElement("div");
 
 
-        div.innerHTML = `
+                div.className =
+                    "settlement-item";
+
+
+                div.innerHTML = `
 
             <strong>${s.from}</strong>
             owes
@@ -1397,59 +1881,59 @@ function calculateSettlements() {
         `;
 
 
-        settlementList.appendChild(div);
+                settlementList.appendChild(div);
 
-    });
-
-}
-
-
-
-// ==========================================
-// BALANCE LIST
-// ==========================================
-
-function updateBalanceList(balances) {
-
-    balanceList.innerHTML = "";
-
-
-    balances.forEach(balance => {
-
-        const div =
-            document.createElement("div");
-
-
-        let className = "neutral";
-
-        let text = "All settled up!";
-
-
-        if (balance.balance > 0.01) {
-
-            className = "positive";
-
-            text =
-                `Gets back $${balance.balance.toFixed(2)}`;
+            });
 
         }
 
 
-        else if (balance.balance < -0.01) {
 
-            className = "negative";
+        // ==========================================
+        // BALANCE LIST
+        // ==========================================
 
-            text =
-                `Owes $${(-balance.balance).toFixed(2)}`;
+        function updateBalanceList(balances) {
 
-        }
-
-
-        div.className =
-            `balance-item ${className}`;
+            balanceList.innerHTML = "";
 
 
-        div.innerHTML = `
+            balances.forEach(balance => {
+
+                const div =
+                    document.createElement("div");
+
+
+                let className = "neutral";
+
+                let text = "All settled up!";
+
+
+                if (balance.balance > 0.01) {
+
+                    className = "positive";
+
+                    text =
+                        `Gets back $${balance.balance.toFixed(2)}`;
+
+                }
+
+
+                else if (balance.balance < -0.01) {
+
+                    className = "negative";
+
+                    text =
+                        `Owes $${(-balance.balance).toFixed(2)}`;
+
+                }
+
+
+                div.className =
+                    `balance-item ${className}`;
+
+
+                div.innerHTML = `
 
             <div>
 
@@ -1473,65 +1957,59 @@ function updateBalanceList(balances) {
         `;
 
 
-        balanceList.appendChild(div);
+                balanceList.appendChild(div);
 
-    });
-
-}
-
-
-
-// ==========================================
-// RESET ALL
-// ==========================================
-
-async function resetAll() {
-
-    if (
-        !confirm(
-            "Are you sure?\n\n" +
-            "This will delete ALL tour mates and ALL expenses from MySQL."
-        )
-    ) {
-
-        return;
-
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                `${API}/api/reset`,
-                {
-                    method: "DELETE"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            alert(data.error);
-
-            return;
+            });
 
         }
 
 
-        tourMates = [];
 
-        expenses = [];
+        // ==========================================
+        // RESET ALL
+        // ==========================================
+
+        async function resetAll() {
+
+            if (
+                !confirm(
+                    "Are you sure?\n\n" +
+                    "This will delete ALL tour mates and ALL expenses from MySQL."
+                )
+            ) {
+
+                return;
+
+            }
 
 
-        updateAll();
+            try {
+
+                const response = await fetch(`${API}/api/reset`, { method: "DELETE", headers: getAuthHeaders() });
 
 
-        balanceList.innerHTML = `
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    alert(data.error);
+
+                    return;
+
+                }
+
+
+                tourMates = [];
+
+                expenses = [];
+
+
+                updateAll();
+
+
+                balanceList.innerHTML = `
 
             <div class="empty-state">
 
@@ -1542,7 +2020,7 @@ async function resetAll() {
         `;
 
 
-        settlementList.innerHTML = `
+                settlementList.innerHTML = `
 
             <div class="empty-state">
 
@@ -1553,59 +2031,59 @@ async function resetAll() {
         `;
 
 
-        alert("All data deleted successfully!");
+                alert("All data deleted successfully!");
 
-    } catch (error) {
+            } catch (error) {
 
-        console.error(error);
+                console.error(error);
 
-        alert(
-            "Server connection failed!\n\n" +
-            "Make sure server.js is running."
+                alert(
+                    "Server connection failed!\n\n" +
+                    "Make sure server.js is running."
+                );
+
+            }
+
+        }
+
+
+
+        // ==========================================
+        // EVENTS
+        // ==========================================
+
+        addTourmate.addEventListener(
+            "click",
+            addTourMateFunction
         );
 
-    }
 
-}
-
-
-
-// ==========================================
-// EVENTS
-// ==========================================
-
-addTourmate.addEventListener(
-    "click",
-    addTourMateFunction
-);
+        addExpense.addEventListener(
+            "click",
+            addExpenseFunction
+        );
 
 
-addExpense.addEventListener(
-    "click",
-    addExpenseFunction
-);
+        calculate.addEventListener(
+            "click",
+            calculateSettlements
+        );
 
 
-calculate.addEventListener(
-    "click",
-    calculateSettlements
-);
-
-
-reset.addEventListener(
-    "click",
-    resetAll
-);
+        reset.addEventListener(
+            "click",
+            resetAll
+        );
 
 
 
-// ==========================================
-// START
-// ==========================================
+        // ==========================================
+        // START
+        // ==========================================
 
-loadData();
+        loadData();
 
-</script>
+    </script>
 
 
 </body>
