@@ -1,3 +1,4 @@
+
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
@@ -7,7 +8,6 @@ const jwt = require("jsonwebtoken");
 const app = express();
 
 console.log("TOUR EXPENSE SERVER STARTING...");
-
 
 // ==================================================
 // MIDDLEWARE
@@ -60,7 +60,6 @@ db.getConnection((err, connection) => {
         );
 
         return;
-
     }
 
     console.log("Connected to MySQL!");
@@ -77,7 +76,7 @@ db.getConnection((err, connection) => {
 function createTables() {
 
     // ==================================================
-    // USERS TABLE
+    // USERS
     // ==================================================
 
     const createUsers = `
@@ -109,14 +108,13 @@ function createTables() {
             );
 
             return;
-
         }
 
         console.log("users table ready.");
 
 
         // ==================================================
-        // TOUR MATES TABLE
+        // TOUR MATES
         // ==================================================
 
         const createTourMates = `
@@ -148,14 +146,13 @@ function createTables() {
                 );
 
                 return;
-
             }
 
             console.log("tour_mates table ready.");
 
 
             // ==================================================
-            // EXPENSES TABLE
+            // TOUR EXPENSES
             // ==================================================
 
             const createExpenses = `
@@ -195,14 +192,13 @@ function createTables() {
                     );
 
                     return;
-
                 }
 
                 console.log("expenses table ready.");
 
 
                 // ==================================================
-                // PERSONAL EXPENSES TABLE
+                // PERSONAL EXPENSES
                 // ==================================================
 
                 const createPersonalExpenses = `
@@ -211,11 +207,13 @@ function createTables() {
 
                         id INT AUTO_INCREMENT PRIMARY KEY,
 
+                        user_id INT NOT NULL,
+
                         description VARCHAR(255) NOT NULL,
 
                         amount DECIMAL(10,2) NOT NULL,
 
-                        user_id INT NOT NULL,
+                        expense_date DATE NOT NULL DEFAULT (CURRENT_DATE),
 
                         FOREIGN KEY (user_id)
                         REFERENCES users(id)
@@ -238,7 +236,6 @@ function createTables() {
                             );
 
                             return;
-
                         }
 
                         console.log(
@@ -287,8 +284,6 @@ app.post("/api/signup", async (req, res) => {
     } = req.body;
 
 
-    // Validation
-
     if (
         !name ||
         !email ||
@@ -305,8 +300,6 @@ app.post("/api/signup", async (req, res) => {
 
     }
 
-
-    // Check email
 
     const checkSql = `
 
@@ -341,8 +334,6 @@ app.post("/api/signup", async (req, res) => {
             }
 
 
-            // Email already exists
-
             if (results.length > 0) {
 
                 return res.status(409).json({
@@ -357,16 +348,12 @@ app.post("/api/signup", async (req, res) => {
 
             try {
 
-                // Hash password
-
                 const hashedPassword =
                     await bcrypt.hash(
                         password,
                         10
                     );
 
-
-                // Insert user
 
                 const sql = `
 
@@ -407,7 +394,10 @@ app.post("/api/signup", async (req, res) => {
                             return res.status(500).json({
 
                                 error:
-                                    "Failed to create account"
+                                    "Failed to create account",
+
+                                details:
+                                    err.message
 
                             });
 
@@ -542,8 +532,6 @@ app.post("/api/login", (req, res) => {
                 results[0];
 
 
-            // Compare password
-
             const passwordMatch =
                 await bcrypt.compare(
                     password,
@@ -562,8 +550,6 @@ app.post("/api/login", (req, res) => {
 
             }
 
-
-            // Create JWT
 
             const token =
                 jwt.sign(
@@ -693,7 +679,6 @@ app.get(
         const sql = `
 
             SELECT
-
                 id,
                 name,
                 email,
@@ -707,11 +692,8 @@ app.get(
 
 
         db.query(
-
             sql,
-
             [req.user.id],
-
             (err, results) => {
 
                 if (err) {
@@ -746,11 +728,9 @@ app.get(
                 res.json(results[0]);
 
             }
-
         );
 
     }
-
 );
 
 
@@ -777,11 +757,8 @@ app.get(
 
 
         db.query(
-
             sql,
-
             [req.user.id],
-
             (err, results) => {
 
                 if (err) {
@@ -804,11 +781,9 @@ app.get(
                 res.json(results);
 
             }
-
         );
 
     }
-
 );
 
 
@@ -821,10 +796,7 @@ app.post(
     authenticateToken,
     (req, res) => {
 
-        const {
-            name
-        } = req.body;
-
+        const { name } = req.body;
 
         const userId =
             req.user.id;
@@ -880,7 +852,10 @@ app.post(
                     return res.status(500).json({
 
                         error:
-                            "Failed to add tour mate"
+                            "Failed to add tour mate",
+
+                        details:
+                            err.message
 
                     });
 
@@ -905,7 +880,6 @@ app.post(
         );
 
     }
-
 );
 
 
@@ -924,8 +898,6 @@ app.delete(
         const userId =
             req.user.id;
 
-
-        // Delete expenses first
 
         const deleteExpenses = `
 
@@ -966,8 +938,6 @@ app.delete(
                 }
 
 
-                // Delete tour mate
-
                 const deleteMate = `
 
                     DELETE FROM tour_mates
@@ -1000,7 +970,10 @@ app.delete(
                             return res.status(500).json({
 
                                 error:
-                                    "Failed to delete tour mate"
+                                    "Failed to delete tour mate",
+
+                                details:
+                                    err.message
 
                             });
 
@@ -1037,7 +1010,6 @@ app.delete(
         );
 
     }
-
 );
 
 
@@ -1096,7 +1068,10 @@ app.get(
                     return res.status(500).json({
 
                         error:
-                            "Failed to get expenses"
+                            "Failed to get expenses",
+
+                        details:
+                            err.message
 
                     });
 
@@ -1110,7 +1085,6 @@ app.get(
         );
 
     }
-
 );
 
 
@@ -1135,19 +1109,12 @@ app.post(
 
 
         if (
-
             !description ||
-
             description.trim() === "" ||
-
             amount === undefined ||
-
             amount === null ||
-
             Number(amount) <= 0 ||
-
             !payerId
-
         ) {
 
             return res.status(400).json({
@@ -1159,8 +1126,6 @@ app.post(
 
         }
 
-
-        // Check payer belongs to current user
 
         const checkPayer = `
 
@@ -1196,7 +1161,10 @@ app.post(
                     return res.status(500).json({
 
                         error:
-                            "Database error"
+                            "Database error",
+
+                        details:
+                            err.message
 
                     });
 
@@ -1239,7 +1207,7 @@ app.post(
 
                     [
                         description.trim(),
-                        amount,
+                        Number(amount),
                         payerId,
                         userId
                     ],
@@ -1256,14 +1224,17 @@ app.post(
                             return res.status(500).json({
 
                                 error:
-                                    "Failed to add expense"
+                                    "Failed to add expense",
+
+                                details:
+                                    err.message
 
                             });
 
                         }
 
 
-                        res.json({
+                        res.status(201).json({
 
                             message:
                                 "Expense added successfully",
@@ -1282,7 +1253,6 @@ app.post(
         );
 
     }
-
 );
 
 
@@ -1334,7 +1304,10 @@ app.delete(
                     return res.status(500).json({
 
                         error:
-                            "Failed to delete expense"
+                            "Failed to delete expense",
+
+                        details:
+                            err.message
 
                     });
 
@@ -1367,7 +1340,6 @@ app.delete(
         );
 
     }
-
 );
 
 
@@ -1385,16 +1357,15 @@ app.get(
             SELECT
 
                 id,
-
                 description,
-
-                amount
+                amount,
+                expense_date
 
             FROM personal_expenses
 
             WHERE user_id = ?
 
-            ORDER BY id ASC
+            ORDER BY expense_date DESC, id DESC
 
         `;
 
@@ -1434,7 +1405,6 @@ app.get(
         );
 
     }
-
 );
 
 
@@ -1449,7 +1419,8 @@ app.post(
 
         const {
             description,
-            amount
+            amount,
+            expense_date
         } = req.body;
 
 
@@ -1462,12 +1433,15 @@ app.post(
             {
                 description,
                 amount,
+                expense_date,
                 userId
             }
         );
 
 
-        // Validation
+        // ==================================================
+        // VALIDATION
+        // ==================================================
 
         if (
             !description ||
@@ -1501,17 +1475,47 @@ app.post(
         }
 
 
+        // ==================================================
+        // DATE
+        // If frontend sends date, use it.
+        // Otherwise use today's date.
+        // ==================================================
+
+        let finalDate;
+
+        if (expense_date) {
+
+            finalDate =
+                expense_date;
+
+        }
+
+        else {
+
+            finalDate =
+                new Date()
+                    .toISOString()
+                    .split("T")[0];
+
+        }
+
+
+        // ==================================================
+        // INSERT
+        // ==================================================
+
         const sql = `
 
             INSERT INTO personal_expenses
 
             (
+                user_id,
                 description,
                 amount,
-                user_id
+                expense_date
             )
 
-            VALUES (?, ?, ?)
+            VALUES (?, ?, ?, ?)
 
         `;
 
@@ -1521,9 +1525,10 @@ app.post(
             sql,
 
             [
+                userId,
                 description.trim(),
                 Number(amount),
-                userId
+                finalDate
             ],
 
             (err, result) => {
@@ -1562,11 +1567,17 @@ app.post(
                     id:
                         result.insertId,
 
+                    user_id:
+                        userId,
+
                     description:
                         description.trim(),
 
                     amount:
-                        Number(amount)
+                        Number(amount),
+
+                    expense_date:
+                        finalDate
 
                 });
 
@@ -1575,7 +1586,6 @@ app.post(
         );
 
     }
-
 );
 
 
@@ -1663,7 +1673,6 @@ app.delete(
         );
 
     }
-
 );
 
 
@@ -1685,10 +1694,6 @@ app.delete(
             userId
         );
 
-
-        // ----------------------------------------------
-        // Delete tour expenses
-        // ----------------------------------------------
 
         const deleteExpenses = `
 
@@ -1717,16 +1722,15 @@ app.delete(
                     return res.status(500).json({
 
                         error:
-                            "Failed to delete expenses"
+                            "Failed to delete expenses",
+
+                        details:
+                            err.message
 
                     });
 
                 }
 
-
-                // ------------------------------------------
-                // Delete personal expenses
-                // ------------------------------------------
 
                 const deletePersonalExpenses = `
 
@@ -1755,16 +1759,15 @@ app.delete(
                             return res.status(500).json({
 
                                 error:
-                                    "Failed to delete personal expenses"
+                                    "Failed to delete personal expenses",
+
+                                details:
+                                    err.message
 
                             });
 
                         }
 
-
-                        // --------------------------------------
-                        // Delete tour mates
-                        // --------------------------------------
 
                         const deleteMates = `
 
@@ -1793,7 +1796,10 @@ app.delete(
                                     return res.status(500).json({
 
                                         error:
-                                            "Failed to delete tour mates"
+                                            "Failed to delete tour mates",
+
+                                        details:
+                                            err.message
 
                                     });
 
@@ -1826,7 +1832,6 @@ app.delete(
         );
 
     }
-
 );
 
 
@@ -1851,3 +1856,4 @@ app.listen(
     }
 
 );
+
