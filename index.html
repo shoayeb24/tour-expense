@@ -406,7 +406,11 @@
 
 
 
-    <div class="container">
+   <div
+    class="container"
+    id="app-container"
+    style="display:none;"
+>
 
 
         <header>
@@ -973,15 +977,12 @@
                 );
 
 
-                // Hide login screen
+               authScreen.style.display = "none";
 
-                authScreen.style.display =
-                    "none";
+document.getElementById("app-container")
+    .style.display = "block";
 
-
-                // Load user's data
-
-                loadData();
+loadData();
 
             }
 
@@ -1093,121 +1094,98 @@
 
 
 
-        // ==========================================
-        // LOAD DATA
-        // ==========================================
+   
+// ==========================================
+// LOAD DATA
+// ==========================================
 
-        async function loadData() {
+async function loadData() {
 
-            try {
+    try {
 
-
-                async function loadData() {
-
-                    try {
-
-                        const matesResponse =
-                            await fetch(
-                                `${API}/api/tourmates`,
-                                {
-                                    headers:
-                                        getAuthHeaders()
-                                }
-                            );
-
-
-                        const expensesResponse =
-                            await fetch(
-                                `${API}/api/expenses`,
-                                {
-                                    headers:
-                                        getAuthHeaders()
-                                }
-                            );
-
-
-                        // Token invalid / expired
-
-                        if (
-                            matesResponse.status === 401 ||
-                            matesResponse.status === 403
-                        ) {
-
-                            logout();
-
-                            return;
-
-                        }
-
-
-                        if (
-                            !matesResponse.ok ||
-                            !expensesResponse.ok
-                        ) {
-
-                            throw new Error(
-                                "Server error"
-                            );
-
-                        }
-
-
-                        tourMates =
-                            await matesResponse.json();
-
-                        expenses =
-                            await expensesResponse.json();
-
-
-                        updateAll();
-
-
-                    } catch (error) {
-
-                        console.error(error);
-
-                        alert(
-                            "Server connection failed!"
-                        );
-
-                    }
-
+        const matesResponse =
+            await fetch(
+                `${API}/api/tourmates`,
+                {
+                    headers:
+                        getAuthHeaders()
                 }
+            );
 
 
-
-
-                if (!matesResponse.ok ||
-                    !expensesResponse.ok) {
-
-                    throw new Error("Server error");
-
+        const expensesResponse =
+            await fetch(
+                `${API}/api/expenses`,
+                {
+                    headers:
+                        getAuthHeaders()
                 }
+            );
 
 
-                tourMates =
-                    await matesResponse.json();
+        // Token invalid / expired
 
-                expenses =
-                    await expensesResponse.json();
+        if (
+            matesResponse.status === 401 ||
+            matesResponse.status === 403
+        ) {
 
+            logout();
 
-                updateAll();
-
-
-            } catch (error) {
-
-                console.error(error);
-
-                alert(
-                    "Server connection failed!\n\n" +
-                    "Make sure server.js is running."
-                );
-
-            }
+            return;
 
         }
 
+
+        if (
+            expensesResponse.status === 401 ||
+            expensesResponse.status === 403
+        ) {
+
+            logout();
+
+            return;
+
+        }
+
+
+        if (
+            !matesResponse.ok ||
+            !expensesResponse.ok
+        ) {
+
+            throw new Error(
+                "Server error"
+            );
+
+        }
+
+
+        tourMates =
+            await matesResponse.json();
+
+
+        expenses =
+            await expensesResponse.json();
+
+
+        updateAll();
+
+
+    } catch (error) {
+
+        console.error(
+            "Load data error:",
+            error
+        );
+
+        alert(
+            "Server connection failed!"
+        );
+
+    }
+
+}
 
 
         // ==========================================
@@ -2077,11 +2055,28 @@
 
 
 
-        // ==========================================
-        // START
-        // ==========================================
+    
+// ==========================================
+// START
+// ==========================================
 
-        loadData();
+const savedToken =
+    localStorage.getItem("tourExpenseToken");
+
+
+if (savedToken) {
+
+    authScreen.style.display = "none";
+
+    document.getElementById("app-container")
+        .style.display = "block";
+
+    loadData();
+
+
+
+}
+
 
     </script>
 
