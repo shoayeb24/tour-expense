@@ -300,6 +300,62 @@
         .actions button {
             flex: 1;
         }
+
+        /* ==========================================
+   HAMBURGER MENU
+========================================== */
+
+.menu-container {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+}
+
+.menu-button {
+    width: 45px;
+    height: 45px;
+    padding: 0;
+    font-size: 26px;
+    background: white;
+    color: var(--primary-color);
+    border-radius: 8px;
+    border: none;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .15);
+}
+
+.menu-button:hover {
+    background: var(--light-color);
+}
+
+.menu-dropdown {
+    display: none;
+    position: absolute;
+    top: 52px;
+    left: 0;
+    width: 160px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, .15);
+    padding: 8px;
+}
+
+.menu-dropdown.show {
+    display: block;
+}
+
+.menu-dropdown button {
+    width: 100%;
+    text-align: left;
+    background: white;
+    color: var(--dark-color);
+    padding: 10px 12px;
+}
+
+.menu-dropdown button:hover {
+    background: var(--light-color);
+}
+
     </style>
 
 </head>
@@ -308,6 +364,26 @@
 
 <body>
 
+
+    <!-- ==========================================
+     HAMBURGER MENU
+========================================== -->
+
+<div class="menu-container">
+
+    <button id="menu-button" class="menu-button">
+        ☰
+    </button>
+
+    <div id="menu-dropdown" class="menu-dropdown">
+
+        <button id="logout-button">
+            Logout
+        </button>
+
+    </div>
+
+</div>
 
     <!-- ==========================================
      AUTH SCREEN
@@ -683,6 +759,18 @@
             location.reload();
 
         }
+
+        const menuButton = document.getElementById("menu-button");
+const menuDropdown = document.getElementById("menu-dropdown");
+const logoutButton = document.getElementById("logout-button");
+
+menuButton.addEventListener("click", () => {
+    menuDropdown.classList.toggle("show");
+});
+
+logoutButton.addEventListener("click", () => {
+    logout();
+});
 
 
         // ==========================================
