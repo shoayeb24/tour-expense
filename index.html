@@ -43,14 +43,15 @@
         }
 
 
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 25px;
-            background: var(--primary-color);
-            color: white;
-            border-radius: 8px;
-        }
+     header {
+    position: relative;
+    text-align: center;
+    margin-bottom: 30px;
+    padding: 25px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 8px;
+}
 
 
         h1 {
@@ -306,7 +307,7 @@
 ========================================== */
 
 .menu-container {
-    position: fixed;
+    position: absolute;
     top: 20px;
     left: 20px;
     z-index: 1000;
@@ -365,25 +366,7 @@
 <body>
 
 
-    <!-- ==========================================
-     HAMBURGER MENU
-========================================== -->
-
-<div class="menu-container">
-
-    <button id="menu-button" class="menu-button">
-        ☰
-    </button>
-
-    <div id="menu-dropdown" class="menu-dropdown">
-
-        <button id="logout-button">
-            Logout
-        </button>
-
-    </div>
-
-</div>
+   
 
     <!-- ==========================================
      AUTH SCREEN
@@ -489,15 +472,34 @@
 >
 
 
-        <header>
+      <header>
 
-            <h1>Tour Expense Calculator</h1>
+    <!-- HAMBURGER MENU -->
 
-            <p class="description">
-                Track expenses and calculate who owes whom
-            </p>
+    <div class="menu-container">
 
-        </header>
+        <button id="menu-button" class="menu-button">
+            ☰
+        </button>
+
+        <div id="menu-dropdown" class="menu-dropdown">
+
+            <button id="logout-button">
+                Logout
+            </button>
+
+        </div>
+
+    </div>
+
+
+    <h1>Tour Expense Calculator</h1>
+
+    <p class="description">
+        Track expenses and calculate who owes whom
+    </p>
+
+</header>
 
 
 
