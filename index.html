@@ -1103,43 +1103,25 @@ async function loadData() {
 
     try {
 
-        const matesResponse =
-            await fetch(
-                `${API}/api/tourmates`,
-                {
-                    headers:
-                        getAuthHeaders()
-                }
-            );
+        const matesResponse = await fetch(
+            `${API}/api/tourmates`,
+            {
+                headers: getAuthHeaders()
+            }
+        );
 
-
-        const expensesResponse =
-            await fetch(
-                `${API}/api/expenses`,
-                {
-                    headers:
-                        getAuthHeaders()
-                }
-            );
+        const expensesResponse = await fetch(
+            `${API}/api/expenses`,
+            {
+                headers: getAuthHeaders()
+            }
+        );
 
 
         // Token invalid / expired
-
         if (
             matesResponse.status === 401 ||
             matesResponse.status === 403
-        ) {
-
-            logout();
-
-            return;
-
-        }
-
-
-        if (
-            expensesResponse.status === 401 ||
-            expensesResponse.status === 403
         ) {
 
             logout();
@@ -1154,16 +1136,13 @@ async function loadData() {
             !expensesResponse.ok
         ) {
 
-            throw new Error(
-                "Server error"
-            );
+            throw new Error("Server error");
 
         }
 
 
         tourMates =
             await matesResponse.json();
-
 
         expenses =
             await expensesResponse.json();
