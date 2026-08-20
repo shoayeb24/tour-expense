@@ -1,3 +1,4 @@
+
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
@@ -73,9 +74,9 @@ db.getConnection((err, connection) => {
 
 function createTables() {
 
-    // ==============================================
-    // USERS
-    // ==============================================
+    // ==================================================
+    // USERS TABLE
+    // ==================================================
 
     const createUsers = `
 
@@ -112,9 +113,9 @@ function createTables() {
         console.log("users table ready.");
 
 
-        // ==========================================
-        // TOUR MATES
-        // ==========================================
+        // ==================================================
+        // TOUR MATES TABLE
+        // ==================================================
 
         const createTourMates = `
 
@@ -151,9 +152,9 @@ function createTables() {
             console.log("tour_mates table ready.");
 
 
-            // ======================================
-            // EXPENSES
-            // ======================================
+            // ==================================================
+            // EXPENSES TABLE
+            // ==================================================
 
             const createExpenses = `
 
@@ -197,6 +198,54 @@ function createTables() {
 
                 console.log("expenses table ready.");
 
+
+                // ==================================================
+                // PERSONAL EXPENSES TABLE
+                // ==================================================
+
+                const createPersonalExpenses = `
+
+                    CREATE TABLE IF NOT EXISTS personal_expenses (
+
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+
+                        description VARCHAR(255) NOT NULL,
+
+                        amount DECIMAL(10,2) NOT NULL,
+
+                        user_id INT NOT NULL,
+
+                        FOREIGN KEY (user_id)
+                        REFERENCES users(id)
+                        ON DELETE CASCADE
+
+                    )
+
+                `;
+
+
+                db.query(
+                    createPersonalExpenses,
+                    (err) => {
+
+                        if (err) {
+
+                            console.error(
+                                "Failed to create personal_expenses table:",
+                                err.message
+                            );
+
+                            return;
+
+                        }
+
+                        console.log(
+                            "personal_expenses table ready."
+                        );
+
+                    }
+                );
+
             });
 
         });
@@ -215,7 +264,9 @@ createTables();
 
 app.get("/", (req, res) => {
 
-    res.send("Tour Expense API is running!");
+    res.send(
+        "Tour Expense API is running!"
+    );
 
 });
 
@@ -269,7 +320,10 @@ app.post("/api/signup", async (req, res) => {
 
             if (err) {
 
-                console.error(err);
+                console.error(
+                    "Check user error:",
+                    err.message
+                );
 
                 return res.status(500).json({
 
@@ -333,7 +387,10 @@ app.post("/api/signup", async (req, res) => {
 
                         if (err) {
 
-                            console.error(err);
+                            console.error(
+                                "Signup database error:",
+                                err.message
+                            );
 
                             return res.status(500).json({
 
@@ -376,7 +433,10 @@ app.post("/api/signup", async (req, res) => {
 
             catch (error) {
 
-                console.error(error);
+                console.error(
+                    "Signup error:",
+                    error.message
+                );
 
                 return res.status(500).json({
 
@@ -439,7 +499,10 @@ app.post("/api/login", (req, res) => {
 
             if (err) {
 
-                console.error(err);
+                console.error(
+                    "Login database error:",
+                    err.message
+                );
 
                 return res.status(500).json({
 
@@ -1081,7 +1144,10 @@ app.post(
 
                 if (err) {
 
-                    console.error(err);
+                    console.error(
+                        "Check payer error:",
+                        err.message
+                    );
 
                     return res.status(500).json({
 
@@ -1258,7 +1324,276 @@ app.delete(
 
 
 // ==================================================
-// RESET ALL
+// GET PERSONAL EXPENSES
+// ==================================================
+
+app.get(
+    "/api/personal-expenses",
+    authenticateToken,
+    (req, res) => {
+
+        const userId =
+            req.user.id;
+
+
+        const sql = `
+
+            SELECT
+
+                id,
+
+                description,
+
+                amount
+
+            FROM personal_expenses
+
+            WHERE user_id = ?
+
+            ORDER BY id ASC
+
+        `;
+
+
+        db.query(
+
+            sql,
+
+            [userId],
+
+            (err, results) => {
+
+                if (err) {
+
+                    console.error(
+                        "Get personal expenses error:",
+                        err.message
+                    );
+
+                    return res.status(500).json({
+
+                        error:
+                            "Failed to get personal expenses"
+
+                    });
+
+                }
+
+
+                res.json(results);
+
+            }
+
+        );
+
+    }
+);
+
+
+// ==================================================
+// ADD PERSONAL EXPENSE
+// ==================================================
+
+app.post(
+    "/api/personal-expenses",
+    authenticateToken,
+    (req, res) => {
+
+        const {
+            description,
+            amount
+        } = req.body;
+
+
+        const userId =
+            req.user.id;
+
+
+        if (
+            !description ||
+            description.trim() === ""
+        ) {
+
+            return res.status(400).json({
+
+                error:
+                    "Description is required"
+
+            });
+
+        }
+
+
+        if (
+            amount === undefined ||
+            amount === null ||
+            Number(amount) <= 0
+        ) {
+
+            return res.status(400).json({
+
+                error:
+                    "Please enter a valid amount"
+
+            });
+
+        }
+
+
+        const sql = `
+
+            INSERT INTO personal_expenses
+
+            (
+                description,
+                amount,
+                user_id
+            )
+
+            VALUES (?, ?, ?)
+
+        `;
+
+
+        db.query(
+
+            sql,
+
+            [
+                description.trim(),
+                Number(amount),
+                userId
+            ],
+
+            (err, result) => {
+
+                if (err) {
+
+                    console.error(
+                        "Add personal expense error:",
+                        err.message
+                    );
+
+                    return res.status(500).json({
+
+                        error:
+                            "Failed to add personal expense"
+
+                    });
+
+                }
+
+
+                res.status(201).json({
+
+                    message:
+                        "Personal expense added successfully",
+
+                    id:
+                        result.insertId,
+
+                    description:
+                        description.trim(),
+
+                    amount:
+                        Number(amount)
+
+                });
+
+            }
+
+        );
+
+    }
+);
+
+
+// ==================================================
+// DELETE PERSONAL EXPENSE
+// ==================================================
+
+app.delete(
+    "/api/personal-expenses/:id",
+    authenticateToken,
+    (req, res) => {
+
+        const id =
+            req.params.id;
+
+        const userId =
+            req.user.id;
+
+
+        const sql = `
+
+            DELETE FROM personal_expenses
+
+            WHERE id = ?
+
+            AND user_id = ?
+
+        `;
+
+
+        db.query(
+
+            sql,
+
+            [
+                id,
+                userId
+            ],
+
+            (err, result) => {
+
+                if (err) {
+
+                    console.error(
+                        "Delete personal expense error:",
+                        err.message
+                    );
+
+                    return res.status(500).json({
+
+                        error:
+                            "Failed to delete personal expense"
+
+                    });
+
+                }
+
+
+                if (
+                    result.affectedRows === 0
+                ) {
+
+                    return res.status(404).json({
+
+                        error:
+                            "Personal expense not found"
+
+                    });
+
+                }
+
+
+                res.json({
+
+                    message:
+                        "Personal expense deleted successfully"
+
+                });
+
+            }
+
+        );
+
+    }
+);
+
+
+// ==================================================
+// RESET ALL TOUR DATA
 // ==================================================
 
 app.delete(
