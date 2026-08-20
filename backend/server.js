@@ -20,12 +20,6 @@ app.use(express.json());
 // MYSQL CONNECTION
 // ==================================================
 
-// Railway MySQL automatically provides these
-// environment variables.
-//
-// Local computer-এ চাইলে এগুলো নিজের MySQL values দিয়ে
-// environment variable হিসেবে দিতে পারবে.
-
 const db = mysql.createPool({
 
     host: process.env.MYSQLHOST || "localhost",
@@ -73,16 +67,15 @@ db.getConnection((err, connection) => {
 });
 
 
-
 // ==================================================
 // CREATE TABLES
 // ==================================================
 
 function createTables() {
 
-    // ----------------------------------------------
-    // USERS TABLE
-    // ----------------------------------------------
+    // ==============================================
+    // USERS
+    // ==============================================
 
     const createUsers = `
 
@@ -93,6 +86,8 @@ function createTables() {
             name VARCHAR(255) NOT NULL,
 
             email VARCHAR(255) NOT NULL UNIQUE,
+
+            number VARCHAR(30),
 
             password VARCHAR(255) NOT NULL
 
@@ -114,14 +109,12 @@ function createTables() {
 
         }
 
-        console.log(
-            "users table ready."
-        );
+        console.log("users table ready.");
 
 
-        // ------------------------------------------
-        // TOUR MATES TABLE
-        // ------------------------------------------
+        // ==========================================
+        // TOUR MATES
+        // ==========================================
 
         const createTourMates = `
 
@@ -155,14 +148,12 @@ function createTables() {
 
             }
 
-            console.log(
-                "tour_mates table ready."
-            );
+            console.log("tour_mates table ready.");
 
 
-            // --------------------------------------
-            // EXPENSES TABLE
-            // --------------------------------------
+            // ======================================
+            // EXPENSES
+            // ======================================
 
             const createExpenses = `
 
@@ -204,9 +195,7 @@ function createTables() {
 
                 }
 
-                console.log(
-                    "expenses table ready."
-                );
+                console.log("expenses table ready.");
 
             });
 
@@ -220,41 +209,58 @@ function createTables() {
 createTables();
 
 
-
 // ==================================================
 // TEST SERVER
 // ==================================================
 
 app.get("/", (req, res) => {
 
-    res.send(
-        "Tour Expense API is running!"
-    );
+    res.send("Tour Expense API is running!");
 
 });
 
 
+// ==================================================
 // SIGN UP
+// ==================================================
 
 app.post("/api/signup", async (req, res) => {
 
-    const { name, email, password } = req.body;
+    const {
+        name,
+        email,
+        number,
+        password
+    } = req.body;
 
-    // সব তথ্য দেওয়া হয়েছে কিনা
-    if (!name || !email || !password) {
+
+    if (
+        !name ||
+        !email ||
+        !number ||
+        !password
+    ) {
 
         return res.status(400).json({
-            error: "Name, email and password are required"
+
+            error:
+                "Name, email, number and password are required"
+
         });
 
     }
 
-    // Email আগে আছে কিনা check
+
     const checkSql = `
+
         SELECT id
+
         FROM users
+
         WHERE email = ?
+
     `;
+
 
     db.query(
         checkSql,
@@ -266,101 +272,169 @@ app.post("/api/signup", async (req, res) => {
                 console.error(err);
 
                 return res.status(500).json({
-                    error: "Database error"
+
+                    error:
+                        "Database error"
+
                 });
 
             }
 
-            // Email already exists
+
             if (results.length > 0) {
 
                 return res.status(409).json({
-                    error: "Email already registered"
+
+                    error:
+                        "Email already registered"
+
                 });
 
             }
 
-            // Password hash করা
-            const hashedPassword =
-                await bcrypt.hash(password, 10);
 
-            // Database-এ user save
-            const sql = `
-                INSERT INTO users
-                (name, email, password)
-                VALUES (?, ?, ?)
-            `;
+            try {
 
-            db.query(
-                sql,
-                [
-                    name.trim(),
-                    email.trim(),
-                    hashedPassword
-                ],
-                (err, result) => {
+                const hashedPassword =
+                    await bcrypt.hash(
+                        password,
+                        10
+                    );
 
-                    if (err) {
 
-                        console.error(err);
+                const sql = `
 
-                        return res.status(500).json({
-                            error: "Failed to create account"
+                    INSERT INTO users
+
+                    (
+                        name,
+                        email,
+                        number,
+                        password
+                    )
+
+                    VALUES (?, ?, ?, ?)
+
+                `;
+
+
+                db.query(
+
+                    sql,
+
+                    [
+                        name.trim(),
+                        email.trim(),
+                        number.trim(),
+                        hashedPassword
+                    ],
+
+                    (err, result) => {
+
+                        if (err) {
+
+                            console.error(err);
+
+                            return res.status(500).json({
+
+                                error:
+                                    "Failed to create account"
+
+                            });
+
+                        }
+
+
+                        res.status(201).json({
+
+                            message:
+                                "Account created successfully",
+
+                            user: {
+
+                                id:
+                                    result.insertId,
+
+                                name:
+                                    name.trim(),
+
+                                email:
+                                    email.trim(),
+
+                                number:
+                                    number.trim()
+
+                            }
+
                         });
 
                     }
 
-                    res.status(201).json({
+                );
 
-                        message:
-                            "Account created successfully",
+            }
 
-                        user: {
+            catch (error) {
 
-                            id: result.insertId,
+                console.error(error);
 
-                            name: name.trim(),
+                return res.status(500).json({
 
-                            email: email.trim()
+                    error:
+                        "Failed to create account"
 
-                        }
+                });
 
-                    });
-
-                }
-            );
+            }
 
         }
+
     );
 
 });
 
 
+// ==================================================
 // LOGIN
+// ==================================================
 
 app.post("/api/login", (req, res) => {
 
-    const { email, password } = req.body;
+    const {
+        email,
+        password
+    } = req.body;
 
-    // Email এবং password দেওয়া হয়েছে কিনা
+
     if (!email || !password) {
 
         return res.status(400).json({
-            error: "Email and password are required"
+
+            error:
+                "Email and password are required"
+
         });
 
     }
 
-    // Email দিয়ে user খোঁজা
+
     const sql = `
+
         SELECT *
+
         FROM users
+
         WHERE email = ?
+
     `;
 
+
     db.query(
+
         sql,
+
         [email.trim()],
+
         async (err, results) => {
 
             if (err) {
@@ -368,738 +442,924 @@ app.post("/api/login", (req, res) => {
                 console.error(err);
 
                 return res.status(500).json({
-                    error: "Database error"
+
+                    error:
+                        "Database error"
+
                 });
 
             }
 
-            // User পাওয়া যায়নি
+
             if (results.length === 0) {
 
                 return res.status(401).json({
-                    error: "Invalid email or password"
+
+                    error:
+                        "Invalid email or password"
+
                 });
 
             }
 
+
             const user = results[0];
 
-            // Password মিলানো
+
             const passwordMatch =
                 await bcrypt.compare(
                     password,
                     user.password
                 );
 
+
             if (!passwordMatch) {
 
                 return res.status(401).json({
-                    error: "Invalid email or password"
+
+                    error:
+                        "Invalid email or password"
+
                 });
 
             }
 
-            // JWT token তৈরি
+
             const token = jwt.sign(
 
                 {
-                    id: user.id,
-                    email: user.email
+
+                    id:
+                        user.id,
+
+                    email:
+                        user.email
+
                 },
 
                 "tour_expense_secret",
 
                 {
-                    expiresIn: "7d"
+
+                    expiresIn:
+                        "7d"
+
                 }
 
             );
 
-            // Login successful
+
             res.json({
 
-                message: "Login successful",
+                message:
+                    "Login successful",
 
-                token: token,
+                token:
+                    token,
 
                 user: {
 
-                    id: user.id,
+                    id:
+                        user.id,
 
-                    name: user.name,
+                    name:
+                        user.name,
 
-                    email: user.email
+                    email:
+                        user.email,
+
+                    number:
+                        user.number
 
                 }
 
             });
 
         }
+
     );
 
 });
 
 
+// ==================================================
 // AUTHENTICATION MIDDLEWARE
+// ==================================================
 
 function authenticateToken(req, res, next) {
 
-    const authHeader = req.headers["authorization"];
+    const authHeader =
+        req.headers["authorization"];
 
-    const token = authHeader && authHeader.split(" ")[1];
+
+    const token =
+        authHeader &&
+        authHeader.split(" ")[1];
+
 
     if (!token) {
 
         return res.status(401).json({
-            error: "Access denied. Please login first."
+
+            error:
+                "Access denied. Please login first."
+
         });
 
     }
 
+
     jwt.verify(
+
         token,
+
         "tour_expense_secret",
+
         (err, user) => {
 
             if (err) {
 
                 return res.status(403).json({
-                    error: "Invalid or expired token"
+
+                    error:
+                        "Invalid or expired token"
+
                 });
 
             }
+
 
             req.user = user;
 
             next();
 
         }
+
     );
 
 }
 
 
 // ==================================================
+// GET PROFILE
+// ==================================================
+
+app.get(
+    "/api/profile",
+    authenticateToken,
+    (req, res) => {
+
+        const sql = `
+
+            SELECT
+                id,
+                name,
+                email,
+                number
+
+            FROM users
+
+            WHERE id = ?
+
+        `;
+
+
+        db.query(
+            sql,
+            [req.user.id],
+            (err, results) => {
+
+                if (err) {
+
+                    console.error(
+                        "Get profile error:",
+                        err.message
+                    );
+
+                    return res.status(500).json({
+
+                        error:
+                            "Failed to get profile"
+
+                    });
+
+                }
+
+
+                if (results.length === 0) {
+
+                    return res.status(404).json({
+
+                        error:
+                            "User not found"
+
+                    });
+
+                }
+
+
+                res.json(results[0]);
+
+            }
+        );
+
+    }
+);
+
+
+// ==================================================
 // GET TOUR MATES
 // ==================================================
 
-app.get("/api/tourmates", authenticateToken, (req, res) => {
+app.get(
+    "/api/tourmates",
+    authenticateToken,
+    (req, res) => {
 
-    const sql = `
-    SELECT *
-    FROM tour_mates
-    WHERE user_id = ?
-    ORDER BY id ASC
-`;
+        const sql = `
 
+            SELECT *
 
-    db.query(sql, [req.user.id], (err, results) => {
+            FROM tour_mates
 
-        if (err) {
+            WHERE user_id = ?
 
-            console.error(
-                "Get tour mates error:",
-                err.message
-            );
+            ORDER BY id ASC
 
-            return res.status(500).json({
-
-                error:
-                    "Failed to get tour mates"
-
-            });
-
-        }
+        `;
 
 
-        res.json(results);
+        db.query(
+            sql,
+            [req.user.id],
+            (err, results) => {
 
-    });
+                if (err) {
 
-});
+                    console.error(
+                        "Get tour mates error:",
+                        err.message
+                    );
+
+                    return res.status(500).json({
+
+                        error:
+                            "Failed to get tour mates"
+
+                    });
+
+                }
+
+
+                res.json(results);
+
+            }
+        );
+
+    }
+);
 
 
 // ==================================================
 // ADD TOUR MATE
 // ==================================================
 
-app.post("/api/tourmates", authenticateToken, (req, res) => {
+app.post(
+    "/api/tourmates",
+    authenticateToken,
+    (req, res) => {
 
-    const { name } = req.body;
-    const userId = req.user.id;
+        const { name } = req.body;
 
-
-    if (!name || name.trim() === "") {
-
-        return res.status(400).json({
-
-            error:
-                "Name is required"
-
-        });
-
-    }
+        const userId =
+            req.user.id;
 
 
-   const sql = `
-    INSERT INTO tour_mates
-    (name, user_id)
-    VALUES (?, ?)
-`;
+        if (!name || name.trim() === "") {
 
+            return res.status(400).json({
 
-    db.query(
-
-        sql,
-
-        [name.trim(), userId],
-
-        (err, result) => {
-
-            if (err) {
-
-                console.error(
-                    "Add tour mate error:",
-                    err.message
-                );
-
-                return res.status(500).json({
-
-                    error:
-                        "Failed to add tour mate"
-
-                });
-
-            }
-
-
-            res.json({
-
-                message:
-                    "Tour mate added successfully",
-
-                id:
-                    result.insertId,
-
-                name:
-                    name.trim()
+                error:
+                    "Name is required"
 
             });
 
         }
 
-    );
 
-});
+        const sql = `
+
+            INSERT INTO tour_mates
+
+            (
+                name,
+                user_id
+            )
+
+            VALUES (?, ?)
+
+        `;
+
+
+        db.query(
+
+            sql,
+
+            [
+                name.trim(),
+                userId
+            ],
+
+            (err, result) => {
+
+                if (err) {
+
+                    console.error(
+                        "Add tour mate error:",
+                        err.message
+                    );
+
+                    return res.status(500).json({
+
+                        error:
+                            "Failed to add tour mate"
+
+                    });
+
+                }
+
+
+                res.json({
+
+                    message:
+                        "Tour mate added successfully",
+
+                    id:
+                        result.insertId,
+
+                    name:
+                        name.trim()
+
+                });
+
+            }
+
+        );
+
+    }
+);
 
 
 // ==================================================
 // DELETE TOUR MATE
 // ==================================================
 
-app.delete("/api/tourmates/:id", authenticateToken, (req, res) => {
+app.delete(
+    "/api/tourmates/:id",
+    authenticateToken,
+    (req, res) => {
 
-    const id = req.params.id;
+        const id =
+            req.params.id;
 
-
-    console.log(
-        "Deleting tour mate:",
-        id
-    );
-
-
-    // Delete related expenses first.
-    // This also works even if foreign key
-    // is configured differently.
-
-    const deleteExpenses = `
-
-        DELETE FROM expenses
-
-        WHERE payer_id = ?
-
-    `;
+        const userId =
+            req.user.id;
 
 
-    db.query(
+        const deleteExpenses = `
 
-        deleteExpenses,
+            DELETE FROM expenses
 
-        [id],
+            WHERE payer_id = ?
 
-        (err) => {
+            AND user_id = ?
 
-            if (err) {
-
-                console.error(
-                    "Delete expenses error:",
-                    err.message
-                );
-
-                return res.status(500).json({
-
-                    error:
-                        "Failed to delete related expenses"
-
-                });
-
-            }
+        `;
 
 
-            const deleteMate = `
+        db.query(
 
-                DELETE FROM tour_mates
+            deleteExpenses,
 
-                WHERE id = ?
+            [
+                id,
+                userId
+            ],
 
-            `;
+            (err) => {
 
+                if (err) {
 
-            db.query(
-
-                deleteMate,
-
-                [id],
-
-                (err, result) => {
-
-                    if (err) {
-
-                        console.error(
-                            "Delete mate error:",
-                            err.message
-                        );
-
-                        return res.status(500).json({
-
-                            error:
-                                "Failed to delete tour mate"
-
-                        });
-
-                    }
-
-
-                    if (
-                        result.affectedRows === 0
-                    ) {
-
-                        return res.status(404).json({
-
-                            error:
-                                "Tour mate not found"
-
-                        });
-
-                    }
-
-
-                    console.log(
-                        "Tour mate deleted:",
-                        id
+                    console.error(
+                        "Delete expenses error:",
+                        err.message
                     );
 
+                    return res.status(500).json({
 
-                    res.json({
-
-                        message:
-                            "Tour mate deleted successfully"
+                        error:
+                            "Failed to delete related expenses"
 
                     });
 
                 }
 
-            );
 
-        }
+                const deleteMate = `
 
-    );
+                    DELETE FROM tour_mates
 
-});
+                    WHERE id = ?
+
+                    AND user_id = ?
+
+                `;
+
+
+                db.query(
+
+                    deleteMate,
+
+                    [
+                        id,
+                        userId
+                    ],
+
+                    (err, result) => {
+
+                        if (err) {
+
+                            console.error(
+                                "Delete mate error:",
+                                err.message
+                            );
+
+                            return res.status(500).json({
+
+                                error:
+                                    "Failed to delete tour mate"
+
+                            });
+
+                        }
+
+
+                        if (
+                            result.affectedRows === 0
+                        ) {
+
+                            return res.status(404).json({
+
+                                error:
+                                    "Tour mate not found"
+
+                            });
+
+                        }
+
+
+                        res.json({
+
+                            message:
+                                "Tour mate deleted successfully"
+
+                        });
+
+                    }
+
+                );
+
+            }
+
+        );
+
+    }
+);
 
 
 // ==================================================
 // GET EXPENSES
 // ==================================================
 
-app.get("/api/expenses", authenticateToken, (req, res) => {
+app.get(
+    "/api/expenses",
+    authenticateToken,
+    (req, res) => {
 
-    const sql = `
+        const sql = `
 
-        SELECT
+            SELECT
 
-            expenses.id,
+                expenses.id,
 
-            expenses.description,
+                expenses.description,
 
-            expenses.amount,
+                expenses.amount,
 
-            expenses.payer_id,
+                expenses.payer_id,
 
-            tour_mates.name AS payer_name
+                tour_mates.name AS payer_name
 
-        FROM expenses
+            FROM expenses
 
-        JOIN tour_mates
+            JOIN tour_mates
 
-        ON expenses.payer_id =
-           tour_mates.id
+            ON expenses.payer_id =
+               tour_mates.id
 
-           WHERE expenses.user_id = ?
-        ORDER BY expenses.id ASC
+            WHERE expenses.user_id = ?
 
-    `;
+            ORDER BY expenses.id ASC
+
+        `;
 
 
-    db.query(
-    sql,
-    [req.user.id],
-    (err, results) => {
+        db.query(
 
-            if (err) {
+            sql,
 
-                console.error(
-                    "Get expenses error:",
-                    err.message
-                );
+            [req.user.id],
 
-                return res.status(500).json({
+            (err, results) => {
 
-                    error:
-                        "Failed to get expenses"
+                if (err) {
 
-                });
+                    console.error(
+                        "Get expenses error:",
+                        err.message
+                    );
+
+                    return res.status(500).json({
+
+                        error:
+                            "Failed to get expenses"
+
+                    });
+
+                }
+
+
+                res.json(results);
 
             }
 
+        );
 
-            res.json(results);
-
-        }
-
-    );
-
-});
+    }
+);
 
 
 // ==================================================
 // ADD EXPENSE
 // ==================================================
 
-app.post("/api/expenses", authenticateToken, (req, res) => {
+app.post(
+    "/api/expenses",
+    authenticateToken,
+    (req, res) => {
 
-    const {
-
-        description,
-
-        amount,
-
-        payerId
-
-    } = req.body;
-
-    const userId = req.user.id;
+        const {
+            description,
+            amount,
+            payerId
+        } = req.body;
 
 
-    if (
-
-        !description ||
-
-        amount === undefined ||
-
-        amount === null ||
-
-        Number(amount) <= 0 ||
-
-        !payerId
-
-    ) {
-
-        return res.status(400).json({
-
-            error:
-                "Description, amount and payer are required"
-
-        });
-
-    }
+        const userId =
+            req.user.id;
 
 
-    const sql = `
+        if (
 
-    INSERT INTO expenses
+            !description ||
 
-    (
-        description,
-        amount,
-        payer_id,
-        user_id
-    )
+            amount === undefined ||
 
-    VALUES (?, ?, ?, ?)
+            amount === null ||
 
-`;
+            Number(amount) <= 0 ||
 
+            !payerId
 
-    db.query(
+        ) {
 
-        sql,
+            return res.status(400).json({
 
-       [
-    description.trim(),
-    amount,
-    payerId,
-    userId
-],
-
-        (err, result) => {
-
-            if (err) {
-
-                console.error(
-                    "Add expense error:",
-                    err.message
-                );
-
-                return res.status(500).json({
-
-                    error:
-                        "Failed to add expense"
-
-                });
-
-            }
-
-
-            res.json({
-
-                message:
-                    "Expense added successfully",
-
-                id:
-                    result.insertId
+                error:
+                    "Description, amount and payer are required"
 
             });
 
         }
 
-    );
 
-});
+        // Make sure payer belongs to current user
 
+        const checkPayer = `
+
+            SELECT id
+
+            FROM tour_mates
+
+            WHERE id = ?
+
+            AND user_id = ?
+
+        `;
+
+
+        db.query(
+
+            checkPayer,
+
+            [
+                payerId,
+                userId
+            ],
+
+            (err, results) => {
+
+                if (err) {
+
+                    console.error(err);
+
+                    return res.status(500).json({
+
+                        error:
+                            "Database error"
+
+                    });
+
+                }
+
+
+                if (results.length === 0) {
+
+                    return res.status(403).json({
+
+                        error:
+                            "Invalid tour mate"
+
+                    });
+
+                }
+
+
+                const sql = `
+
+                    INSERT INTO expenses
+
+                    (
+                        description,
+                        amount,
+                        payer_id,
+                        user_id
+                    )
+
+                    VALUES (?, ?, ?, ?)
+
+                `;
+
+
+                db.query(
+
+                    sql,
+
+                    [
+                        description.trim(),
+                        amount,
+                        payerId,
+                        userId
+                    ],
+
+                    (err, result) => {
+
+                        if (err) {
+
+                            console.error(
+                                "Add expense error:",
+                                err.message
+                            );
+
+                            return res.status(500).json({
+
+                                error:
+                                    "Failed to add expense"
+
+                            });
+
+                        }
+
+
+                        res.json({
+
+                            message:
+                                "Expense added successfully",
+
+                            id:
+                                result.insertId
+
+                        });
+
+                    }
+
+                );
+
+            }
+
+        );
+
+    }
+);
 
 
 // ==================================================
 // DELETE EXPENSE
 // ==================================================
 
-app.delete("/api/expenses/:id", authenticateToken, (req, res) => {
+app.delete(
+    "/api/expenses/:id",
+    authenticateToken,
+    (req, res) => {
 
-    const id = req.params.id;
+        const id =
+            req.params.id;
 
-    console.log(
-        "Deleting expense:",
-        id,
-        "for user:",
-        req.user.id
-    );
-
-
-    const sql = `
-
-        DELETE FROM expenses
-
-        WHERE id = ?
-
-        AND user_id = ?
-
-    `;
+        const userId =
+            req.user.id;
 
 
-    db.query(
+        const sql = `
 
-        sql,
+            DELETE FROM expenses
 
-        [
-            id,
-            req.user.id
-        ],
+            WHERE id = ?
 
-        (err, result) => {
+            AND user_id = ?
 
-            if (err) {
+        `;
 
-                console.error(
-                    "Delete expense error:",
-                    err.message
-                );
 
-                return res.status(500).json({
+        db.query(
 
-                    error:
-                        "Failed to delete expense"
+            sql,
+
+            [
+                id,
+                userId
+            ],
+
+            (err, result) => {
+
+                if (err) {
+
+                    console.error(
+                        "Delete expense error:",
+                        err.message
+                    );
+
+                    return res.status(500).json({
+
+                        error:
+                            "Failed to delete expense"
+
+                    });
+
+                }
+
+
+                if (
+                    result.affectedRows === 0
+                ) {
+
+                    return res.status(404).json({
+
+                        error:
+                            "Expense not found"
+
+                    });
+
+                }
+
+
+                res.json({
+
+                    message:
+                        "Expense deleted successfully"
 
                 });
 
             }
 
+        );
 
-            if (
-                result.affectedRows === 0
-            ) {
-
-                return res.status(404).json({
-
-                    error:
-                        "Expense not found"
-
-                });
-
-            }
-
-
-            console.log(
-                "Expense deleted:",
-                id
-            );
-
-
-            res.json({
-
-                message:
-                    "Expense deleted successfully"
-
-            });
-
-        }
-
-    );
-
-});
-
-
-
+    }
+);
 
 
 // ==================================================
 // RESET ALL
 // ==================================================
 
-app.delete("/api/reset", authenticateToken, (req, res) => {
+app.delete(
+    "/api/reset",
+    authenticateToken,
+    (req, res) => {
 
-    console.log(
-        "Resetting data for user:",
-        req.user.id
-    );
-
-
-    // ----------------------------------------------
-    // Delete only this user's expenses
-    // ----------------------------------------------
-
-    const deleteExpenses = `
-
-        DELETE FROM expenses
-
-        WHERE user_id = ?
-
-    `;
+        const userId =
+            req.user.id;
 
 
-    db.query(
+        const deleteExpenses = `
 
-        deleteExpenses,
+            DELETE FROM expenses
 
-        [req.user.id],
+            WHERE user_id = ?
 
-        (err) => {
-
-            if (err) {
-
-                console.error(
-                    "Reset expenses error:",
-                    err.message
-                );
-
-                return res.status(500).json({
-
-                    error:
-                        "Failed to delete expenses"
-
-                });
-
-            }
+        `;
 
 
-            // ------------------------------------------
-            // Delete only this user's tour mates
-            // ------------------------------------------
+        db.query(
 
-            const deleteMates = `
+            deleteExpenses,
 
-                DELETE FROM tour_mates
+            [userId],
 
-                WHERE user_id = ?
+            (err) => {
 
-            `;
+                if (err) {
 
-
-            db.query(
-
-                deleteMates,
-
-                [req.user.id],
-
-                (err) => {
-
-                    if (err) {
-
-                        console.error(
-                            "Reset mates error:",
-                            err.message
-                        );
-
-                        return res.status(500).json({
-
-                            error:
-                                "Failed to delete tour mates"
-
-                        });
-
-                    }
-
-
-                    console.log(
-                        "User data reset successfully:",
-                        req.user.id
+                    console.error(
+                        "Reset expenses error:",
+                        err.message
                     );
 
+                    return res.status(500).json({
 
-                    res.json({
-
-                        message:
-                            "Your tour mates and expenses have been deleted successfully"
+                        error:
+                            "Failed to delete expenses"
 
                     });
 
                 }
 
-            );
 
-        }
+                const deleteMates = `
 
-    );
+                    DELETE FROM tour_mates
 
-});
+                    WHERE user_id = ?
 
+                `;
+
+
+                db.query(
+
+                    deleteMates,
+
+                    [userId],
+
+                    (err) => {
+
+                        if (err) {
+
+                            console.error(
+                                "Reset mates error:",
+                                err.message
+                            );
+
+                            return res.status(500).json({
+
+                                error:
+                                    "Failed to delete tour mates"
+
+                            });
+
+                        }
+
+
+                        res.json({
+
+                            message:
+                                "Your tour mates and expenses have been deleted successfully"
+
+                        });
+
+                    }
+
+                );
+
+            }
+
+        );
+
+    }
+);
 
 
 // ==================================================
 // START SERVER
 // ==================================================
-
-// Railway automatically gives us PORT.
-// Local computer-এ 3000 ব্যবহার হবে.
 
 const PORT =
     process.env.PORT || 3000;
@@ -1112,9 +1372,7 @@ app.listen(
     () => {
 
         console.log(
-
             `Server running on port ${PORT}`
-
         );
 
     }
