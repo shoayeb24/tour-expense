@@ -197,6 +197,23 @@ function createTables() {
 
                 console.log("expenses table ready.");
 
+                
+
+                console.log("expenses table ready.");
+
+const addDateColumn = `
+    ALTER TABLE expenses
+    ADD COLUMN expense_date DATE NOT NULL DEFAULT (CURRENT_DATE)
+`;
+
+db.query(addDateColumn, (err) => {
+    if (err && err.code !== 'ER_DUP_FIELDNAME') {
+        console.error("Failed to add expense_date column:", err.message);
+    } else {
+        console.log("expense_date column ready.");
+    }
+});
+
 
                 // ==================================================
                 // PERSONAL EXPENSES
@@ -1034,6 +1051,7 @@ app.get(
                 expenses.amount,
 
                 expenses.payer_id,
+                expenses.expense_date,
 
                 tour_mates.name AS payer_name
 
@@ -1101,7 +1119,8 @@ app.post(
         const {
             description,
             amount,
-            payerId
+            payerId,
+            expense_date
         } = req.body;
 
 
@@ -1126,6 +1145,11 @@ app.post(
             });
 
         }
+
+
+        const finalDate =
+            expense_date ||
+            new Date().toISOString().split("T")[0];
 
 
         const checkPayer = `
@@ -1194,10 +1218,11 @@ app.post(
                         description,
                         amount,
                         payer_id,
-                        user_id
+                        user_id,
+                        expense_date
                     )
 
-                    VALUES (?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?)
 
                 `;
 
@@ -1210,7 +1235,8 @@ app.post(
                         description.trim(),
                         Number(amount),
                         payerId,
-                        userId
+                        userId,
+                        finalDate
                     ],
 
                     (err, result) => {
