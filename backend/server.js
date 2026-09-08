@@ -1,4 +1,3 @@
-
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
@@ -115,6 +114,46 @@ function createTables() {
 
 
         // ==================================================
+        // TRIPS
+        // ==================================================
+
+        const createTrips = `
+
+            CREATE TABLE IF NOT EXISTS trips (
+
+                id INT AUTO_INCREMENT PRIMARY KEY,
+
+                name VARCHAR(255) NOT NULL,
+
+                user_id INT NOT NULL,
+
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+                FOREIGN KEY (user_id)
+                REFERENCES users(id)
+                ON DELETE CASCADE
+
+            )
+
+        `;
+
+
+        db.query(createTrips, (err) => {
+
+            if (err) {
+
+                console.error(
+                    "Failed to create trips table:",
+                    err.message
+                );
+
+                return;
+            }
+
+            console.log("trips table ready.");
+
+
+        // ==================================================
         // TOUR MATES
         // ==================================================
 
@@ -150,6 +189,20 @@ function createTables() {
             }
 
             console.log("tour_mates table ready.");
+
+
+            const addTripIdToMates = `
+                ALTER TABLE tour_mates
+                ADD COLUMN trip_id INT NULL
+            `;
+
+            db.query(addTripIdToMates, (err) => {
+                if (err && err.code !== 'ER_DUP_FIELDNAME') {
+                    console.error("Failed to add trip_id to tour_mates:", err.message);
+                } else {
+                    console.log("tour_mates.trip_id ready.");
+                }
+            });
 
 
             // ==================================================
@@ -197,10 +250,6 @@ function createTables() {
 
                 console.log("expenses table ready.");
 
-                
-
-                console.log("expenses table ready.");
-
 const addDateColumn = `
     ALTER TABLE expenses
     ADD COLUMN expense_date DATE NOT NULL DEFAULT (CURRENT_DATE)
@@ -211,6 +260,19 @@ db.query(addDateColumn, (err) => {
         console.error("Failed to add expense_date column:", err.message);
     } else {
         console.log("expense_date column ready.");
+    }
+});
+
+const addTripIdToExpenses = `
+    ALTER TABLE expenses
+    ADD COLUMN trip_id INT NULL
+`;
+
+db.query(addTripIdToExpenses, (err) => {
+    if (err && err.code !== 'ER_DUP_FIELDNAME') {
+        console.error("Failed to add trip_id to expenses:", err.message);
+    } else {
+        console.log("expenses.trip_id ready.");
     }
 });
 
@@ -264,6 +326,8 @@ db.query(addDateColumn, (err) => {
                 );
 
             });
+
+        });
 
         });
 
@@ -747,6 +811,161 @@ app.get(
 
             }
         );
+
+    }
+);
+
+
+// ==================================================
+// GET TRIPS (with aggregated mate count + total cost)
+// ==================================================
+
+app.get(
+    "/api/trips",
+    authenticateToken,
+    (req, res) => {
+
+        const sql = `
+
+            SELECT
+
+                trips.id,
+                trips.name,
+                trips.created_at,
+
+                COUNT(DISTINCT tour_mates.id) AS mate_count,
+                COALESCE(SUM(expenses.amount), 0) AS total_cost
+
+            FROM trips
+
+            LEFT JOIN tour_mates
+                ON tour_mates.trip_id = trips.id
+
+            LEFT JOIN expenses
+                ON expenses.trip_id = trips.id
+
+            WHERE trips.user_id = ?
+
+            GROUP BY trips.id
+
+            ORDER BY trips.created_at DESC
+
+        `;
+
+        db.query(sql, [req.user.id], (err, results) => {
+
+            if (err) {
+                console.error("Get trips error:", err.message);
+                return res.status(500).json({ error: "Failed to get trips", details: err.message });
+            }
+
+            res.json(results);
+
+        });
+
+    }
+);
+
+
+// ==================================================
+// CREATE TRIP
+// ==================================================
+
+app.post(
+    "/api/trips",
+    authenticateToken,
+    (req, res) => {
+
+        const { name } = req.body;
+        const userId = req.user.id;
+
+        if (!name || name.trim() === "") {
+            return res.status(400).json({ error: "Trip name is required" });
+        }
+
+        const sql = `
+            INSERT INTO trips (name, user_id)
+            VALUES (?, ?)
+        `;
+
+        db.query(sql, [name.trim(), userId], (err, result) => {
+
+            if (err) {
+                console.error("Create trip error:", err.message);
+                return res.status(500).json({ error: "Failed to create trip", details: err.message });
+            }
+
+            res.status(201).json({
+                message: "Trip created successfully",
+                id: result.insertId,
+                name: name.trim()
+            });
+
+        });
+
+    }
+);
+
+
+// ==================================================
+// DELETE TRIP (also removes its tour mates & expenses)
+// ==================================================
+
+app.delete(
+    "/api/trips/:id",
+    authenticateToken,
+    (req, res) => {
+
+        const id = req.params.id;
+        const userId = req.user.id;
+
+        const deleteTripExpenses = `
+            DELETE FROM expenses
+            WHERE trip_id = ? AND user_id = ?
+        `;
+
+        db.query(deleteTripExpenses, [id, userId], (err) => {
+
+            if (err) {
+                console.error("Delete trip expenses error:", err.message);
+                return res.status(500).json({ error: "Failed to delete trip expenses", details: err.message });
+            }
+
+            const deleteTripMates = `
+                DELETE FROM tour_mates
+                WHERE trip_id = ? AND user_id = ?
+            `;
+
+            db.query(deleteTripMates, [id, userId], (err) => {
+
+                if (err) {
+                    console.error("Delete trip mates error:", err.message);
+                    return res.status(500).json({ error: "Failed to delete trip mates", details: err.message });
+                }
+
+                const deleteTrip = `
+                    DELETE FROM trips
+                    WHERE id = ? AND user_id = ?
+                `;
+
+                db.query(deleteTrip, [id, userId], (err, result) => {
+
+                    if (err) {
+                        console.error("Delete trip error:", err.message);
+                        return res.status(500).json({ error: "Failed to delete trip", details: err.message });
+                    }
+
+                    if (result.affectedRows === 0) {
+                        return res.status(404).json({ error: "Trip not found" });
+                    }
+
+                    res.json({ message: "Trip deleted successfully" });
+
+                });
+
+            });
+
+        });
 
     }
 );
@@ -1883,4 +2102,3 @@ app.listen(
     }
 
 );
-
