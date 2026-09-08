@@ -357,79 +357,6 @@
         }
 
 
-        /* ==========================================
-           AVATAR CHIPS (tour mates)
-        ========================================== */
-
-        .mate-chip {
-
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-
-        }
-
-
-        .mate-avatar {
-
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 700;
-            color: #fff;
-            font-family: 'Fraunces', serif;
-            flex-shrink: 0;
-
-        }
-
-
-        /* ==========================================
-           EXPENSE ICON BADGES
-        ========================================== */
-
-        .expense-icon {
-
-            width: 38px;
-            height: 38px;
-            border-radius: 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 17px;
-            flex-shrink: 0;
-
-        }
-
-
-        .expense-row {
-
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-
-        }
-
-
-        .tint-1 { background: var(--teal); }
-        .tint-2 { background: var(--coral); }
-        .tint-3 { background: var(--amber); }
-        .tint-4 { background: #6C5CE7; }
-        .tint-5 { background: #2A9D8F; }
-        .tint-6 { background: #E07A5F; }
-
-        .expense-icon.tint-1 { background: var(--teal-tint); }
-        .expense-icon.tint-2 { background: var(--coral-tint); }
-        .expense-icon.tint-3 { background: var(--amber-tint); }
-        .expense-icon.tint-4 { background: #ECE9FB; }
-        .expense-icon.tint-5 { background: #E2F3F1; }
-        .expense-icon.tint-6 { background: #FBEAE3; }
-
-
         .delete-btn {
 
             background: transparent;
@@ -609,41 +536,12 @@
 
         .settlement-item {
 
-            display: flex;
-            align-items: center;
-            gap: 10px;
             padding: 14px 16px;
             margin-bottom: 10px;
-            background: var(--coral-tint);
+            background: var(--sand);
+            border: 1.5px dashed var(--sand-dim);
             border-radius: var(--radius-md);
             font-size: 0.95rem;
-
-        }
-
-
-        .settlement-item .settlement-names {
-
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            flex: 1;
-
-        }
-
-
-        .settlement-item .settlement-arrow {
-
-            color: var(--coral-deep);
-            font-size: 1.1rem;
-
-        }
-
-
-        .settlement-item .settlement-amount {
-
-            font-family: 'Fraunces', serif;
-            font-weight: 700;
-            color: var(--coral-deep);
 
         }
 
@@ -2844,10 +2742,9 @@
 
             tourmateList.innerHTML = "";
 
-            const tints = ["tint-1","tint-2","tint-3","tint-4","tint-5","tint-6"];
 
             tourMates.forEach(
-                (mate, idx) => {
+                mate => {
 
                     const li =
                         document.createElement(
@@ -2859,21 +2756,12 @@
                         "list-item";
 
 
-                    const initials = mate.name
-                        .trim()
-                        .split(/\s+/)
-                        .slice(0, 2)
-                        .map(w => w[0]?.toUpperCase() || "")
-                        .join("");
-
-                    const tint = tints[idx % tints.length];
-
-
                     li.innerHTML = `
 
-                        <span class="mate-chip">
-                            <span class="mate-avatar ${tint}">${initials}</span>
-                            <strong>${mate.name}</strong>
+                        <span>
+                            <strong>
+                                ${mate.name}
+                            </strong>
                         </span>
 
                         <button
@@ -2913,10 +2801,7 @@
 
             expenseList.innerHTML = "";
 
-            const icons = ["🍽️","🏨","🚗","🎟️","🛍️","⛽"];
-            const tints = ["tint-1","tint-2","tint-3","tint-4","tint-5","tint-6"];
-
-            expenses.forEach((expense, idx) => {
+            expenses.forEach(expense => {
 
                 const li = document.createElement("li");
                 li.className = "list-item";
@@ -2926,18 +2811,12 @@
                     ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`
                     : expense.expense_date;
 
-                const icon = icons[idx % icons.length];
-                const tint = tints[idx % tints.length];
-
                 li.innerHTML = `
-                    <div class="expense-row">
-                        <div class="expense-icon ${tint}">${icon}</div>
-                        <div>
-                            <strong>${expense.description}</strong>
-                            <div style="font-size:13px;color:var(--ink-soft);margin-top:2px;">Paid by: ${expense.payer_name}</div>
-                            <div style="font-size:13px;color:var(--ink-soft);">${formattedDate || ""}</div>
-                            <strong style="display:block;margin-top:4px;font-family:'Fraunces',serif;">$${Number(expense.amount).toFixed(2)}</strong>
-                        </div>
+                    <div>
+                        <strong>${expense.description}</strong>
+                        <div style="font-size:13px;color:var(--ink-soft);margin-top:2px;">Paid by: ${expense.payer_name}</div>
+                        <div style="font-size:13px;color:var(--ink-soft);">${formattedDate || ""}</div>
+                        <strong style="display:block;margin-top:4px;font-family:'Fraunces',serif;">$${Number(expense.amount).toFixed(2)}</strong>
                     </div>
                     <button class="delete-btn" onclick="deleteExpense(${expense.id})">Delete</button>
                 `;
@@ -3261,15 +3140,23 @@
 
                     div.innerHTML = `
 
-                        <div class="settlement-names">
-                            <strong>${s.from}</strong>
-                            <span class="settlement-arrow">→</span>
-                            <strong>${s.to}</strong>
-                        </div>
+                        <strong>
+                            ${s.from}
+                        </strong>
 
-                        <div class="settlement-amount">
+                        owes
+
+                        <strong>
+                            ${s.to}
+                        </strong>
+
+                        <br>
+
+                        Amount:
+
+                        <strong>
                             $${s.amount.toFixed(2)}
-                        </div>
+                        </strong>
 
                     `;
 
