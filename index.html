@@ -566,9 +566,9 @@
 
         .menu-container {
 
-            position: absolute;
-            top: 22px;
-            left: 24px;
+            position: fixed;
+            top: 34px;
+            left: 34px;
             z-index: 1000;
 
         }
@@ -1014,41 +1014,41 @@
     >
 
 
-        <header>
+        <!-- HAMBURGER MENU (kept outside header so its dropdown isn't clipped by header's rounded-corner overflow) -->
 
-            <!-- HAMBURGER MENU -->
+        <div class="menu-container">
 
-            <div class="menu-container">
+            <button
+                id="menu-button"
+                class="menu-button"
+            >
+                ☰
+            </button>
 
-                <button
-                    id="menu-button"
-                    class="menu-button"
-                >
-                    ☰
+
+            <div
+                id="menu-dropdown"
+                class="menu-dropdown"
+            >
+
+                <button id="profile-button">
+                    Profile
                 </button>
 
+                <button id="personal-expenses-button">
+                    Personal Expenses
+                </button>
 
-                <div
-                    id="menu-dropdown"
-                    class="menu-dropdown"
-                >
-
-                    <button id="profile-button">
-                        Profile
-                    </button>
-
-                    <button id="personal-expenses-button">
-                        Personal Expenses
-                    </button>
-
-                    <button id="logout-button">
-                        Logout
-                    </button>
-
-                </div>
+                <button id="logout-button">
+                    Logout
+                </button>
 
             </div>
 
+        </div>
+
+
+        <header>
 
             <h1>
                 Tour Expense Calculator
