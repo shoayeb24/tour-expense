@@ -323,6 +323,19 @@ db.query(addTripIdToExpenses, (err) => {
                             "personal_expenses table ready."
                         );
 
+                        const addTripIdToPersonal = `
+                            ALTER TABLE personal_expenses
+                            ADD COLUMN trip_id INT NULL
+                        `;
+
+                        db.query(addTripIdToPersonal, (err) => {
+                            if (err && err.code !== 'ER_DUP_FIELDNAME') {
+                                console.error("Failed to add trip_id to personal_expenses:", err.message);
+                            } else {
+                                console.log("personal_expenses.trip_id ready.");
+                            }
+                        });
+
                     }
                 );
 
@@ -834,20 +847,21 @@ app.get(
                 trips.name,
                 trips.created_at,
 
-                COUNT(DISTINCT tour_mates.id) AS mate_count,
-                COALESCE(SUM(expenses.amount), 0) AS total_cost
+                (
+                    SELECT COUNT(*)
+                    FROM tour_mates
+                    WHERE tour_mates.trip_id = trips.id
+                ) AS mate_count,
+
+                (
+                    SELECT COALESCE(SUM(amount), 0)
+                    FROM expenses
+                    WHERE expenses.trip_id = trips.id
+                ) AS total_cost
 
             FROM trips
 
-            LEFT JOIN tour_mates
-                ON tour_mates.trip_id = trips.id
-
-            LEFT JOIN expenses
-                ON expenses.trip_id = trips.id
-
             WHERE trips.user_id = ?
-
-            GROUP BY trips.id
 
             ORDER BY trips.created_at DESC
 
@@ -1645,6 +1659,12 @@ app.get(
     authenticateToken,
     (req, res) => {
 
+        const tripId = req.query.trip_id;
+
+        if (!tripId) {
+            return res.status(400).json({ error: "trip_id is required" });
+        }
+
         const sql = `
 
             SELECT
@@ -1657,6 +1677,7 @@ app.get(
             FROM personal_expenses
 
             WHERE user_id = ?
+            AND trip_id = ?
 
             ORDER BY expense_date DESC, id DESC
 
@@ -1667,7 +1688,7 @@ app.get(
 
             sql,
 
-            [req.user.id],
+            [req.user.id, tripId],
 
             (err, results) => {
 
@@ -1713,7 +1734,8 @@ app.post(
         const {
             description,
             amount,
-            expense_date
+            expense_date,
+            trip_id
         } = req.body;
 
 
@@ -1727,6 +1749,7 @@ app.post(
                 description,
                 amount,
                 expense_date,
+                trip_id,
                 userId
             }
         );
@@ -1762,6 +1785,18 @@ app.post(
 
                 error:
                     "Valid amount is required"
+
+            });
+
+        }
+
+
+        if (!trip_id) {
+
+            return res.status(400).json({
+
+                error:
+                    "trip_id is required"
 
             });
 
@@ -1805,10 +1840,11 @@ app.post(
                 user_id,
                 description,
                 amount,
-                expense_date
+                expense_date,
+                trip_id
             )
 
-            VALUES (?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?)
 
         `;
 
@@ -1821,7 +1857,8 @@ app.post(
                 userId,
                 description.trim(),
                 Number(amount),
-                finalDate
+                finalDate,
+                trip_id
             ],
 
             (err, result) => {

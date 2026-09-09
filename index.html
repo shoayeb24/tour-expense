@@ -736,12 +736,13 @@
             position: absolute;
             top: 54px;
             left: 0;
-            width: 200px;
+            width: 230px;
             background: var(--paper);
             border-radius: var(--radius-md);
-            box-shadow: 0 12px 30px rgba(22,51,46,0.18);
-            padding: 8px;
+            box-shadow: 0 16px 40px rgba(22,51,46,0.20);
+            padding: 6px;
             border: 1px solid var(--sand-dim);
+            overflow: hidden;
 
         }
 
@@ -749,6 +750,71 @@
         .menu-dropdown.show {
 
             display: block;
+
+        }
+
+
+        .menu-item {
+
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            text-align: left;
+            background: transparent;
+            color: var(--ink);
+            padding: 12px 12px;
+            margin-bottom: 2px;
+            font-weight: 500;
+            font-size: 0.93rem;
+            border-radius: var(--radius-sm);
+
+        }
+
+
+        .menu-item:hover {
+
+            background: var(--sand);
+
+        }
+
+
+        .menu-item .menu-icon {
+
+            width: 30px;
+            height: 30px;
+            min-width: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            background: var(--teal-tint);
+            color: var(--teal-deep);
+
+        }
+
+
+        .menu-item.menu-item-danger .menu-icon {
+
+            background: var(--coral-tint);
+            color: var(--coral-deep);
+
+        }
+
+
+        .menu-item.menu-item-danger:hover {
+
+            background: var(--coral-tint);
+
+        }
+
+
+        .menu-divider {
+
+            height: 1px;
+            background: var(--sand-dim);
+            margin: 4px 6px;
 
         }
 
@@ -1166,15 +1232,20 @@
                 class="menu-dropdown"
             >
 
-                <button id="profile-button">
+                <button id="profile-button" class="menu-item">
+                    <span class="menu-icon">👤</span>
                     Profile
                 </button>
 
-                <button id="personal-expenses-button">
+                <button id="personal-expenses-button" class="menu-item">
+                    <span class="menu-icon">🧾</span>
                     Personal Expenses
                 </button>
 
-                <button id="logout-button">
+                <div class="menu-divider"></div>
+
+                <button id="logout-button" class="menu-item menu-item-danger">
+                    <span class="menu-icon">⏻</span>
                     Logout
                 </button>
 
@@ -1540,6 +1611,14 @@
 
                     </div>
 
+
+                    <button
+                        id="download-trip-pdf"
+                        style="width:100%; margin-top:12px; background:var(--ink);"
+                    >
+                        ⬇ Download Trip PDF
+                    </button>
+
                 </div>
 
 
@@ -1645,6 +1724,7 @@
 
                 <h2>
                     Personal Expenses
+                    <span id="personal-expenses-trip-name" style="font-family:'Plus Jakarta Sans',sans-serif; font-size:0.9rem; color:var(--ink-soft); font-weight:500;"></span>
                 </h2>
 
                 <p
@@ -1750,6 +1830,14 @@
 
                 </div>
 
+
+                <button
+                    id="download-personal-pdf"
+                    style="width:100%; margin-top:14px; background:var(--ink); "
+                >
+                    ⬇ Download PDF
+                </button>
+
             </div>
 
         </div>
@@ -1757,6 +1845,8 @@
 
     </div>
 
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
 
@@ -2005,6 +2095,20 @@
             "click",
             () => {
 
+                menuDropdown.classList.remove(
+                    "show"
+                );
+
+                if (!currentTripId) {
+
+                    alert(
+                        "Please open a trip first, then add its Personal Expenses from inside that trip."
+                    );
+
+                    return;
+
+                }
+
                 tourExpenseContent.style.display =
                     "none";
 
@@ -2020,9 +2124,19 @@
                     "active"
                 );
 
-                menuDropdown.classList.remove(
-                    "show"
-                );
+                const heading =
+                    document.getElementById(
+                        "personal-expenses-trip-name"
+                    );
+
+                if (heading) {
+
+                    heading.textContent =
+                        currentTripNameHeading.textContent
+                            ? `for ${currentTripNameHeading.textContent}`
+                            : "";
+
+                }
 
                 loadPersonalExpenses();
 
@@ -3865,7 +3979,7 @@
 
                 const response =
                     await fetch(
-                        `${API}/api/personal-expenses`,
+                        `${API}/api/personal-expenses?trip_id=${currentTripId}`,
                         {
 
                             headers:
@@ -4005,7 +4119,10 @@
                                         amount,
 
                                     expense_date:
-                                        date
+                                        date,
+
+                                    trip_id:
+                                        currentTripId
 
                                 })
 
@@ -4253,6 +4370,182 @@
 
 
         // ==========================================
+        // PDF EXPORT
+        // ==========================================
+
+        function pdfNewLine(doc, y, lineHeight) {
+
+            if (y > 275) {
+                doc.addPage();
+                return 20;
+            }
+
+            return y + lineHeight;
+
+        }
+
+
+        function downloadTripPdf() {
+
+            if (!currentTripId) {
+                alert("Please open a trip first.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const tripName = currentTripNameHeading.textContent || "Trip";
+            let y = 20;
+
+            doc.setFontSize(18);
+            doc.text(tripName, 14, y);
+            y += 8;
+
+            doc.setFontSize(10);
+            doc.setTextColor(120);
+            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, y);
+            doc.setTextColor(0);
+            y += 12;
+
+            doc.setFontSize(13);
+            doc.text("Tour Mates", 14, y);
+            y += 7;
+            doc.setFontSize(10);
+
+            if (tourMates.length === 0) {
+                doc.text("No tour mates added.", 14, y);
+                y += 6;
+            } else {
+                tourMates.forEach(mate => {
+                    doc.text(`- ${mate.name}`, 14, y);
+                    y = pdfNewLine(doc, y, 6);
+                });
+            }
+
+            y += 6;
+            doc.setFontSize(13);
+            doc.text("Expenses", 14, y);
+            y += 7;
+            doc.setFontSize(10);
+
+            if (expenses.length === 0) {
+                doc.text("No expenses added.", 14, y);
+                y += 6;
+            } else {
+                expenses.forEach(expense => {
+                    const dateParts = String(expense.expense_date).split("-");
+                    const formattedDate = dateParts.length === 3
+                        ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`
+                        : expense.expense_date;
+                    doc.text(
+                        `- ${expense.description} | Paid by: ${expense.payer_name} | ${formattedDate} | $${Number(expense.amount).toFixed(2)}`,
+                        14, y
+                    );
+                    y = pdfNewLine(doc, y, 6);
+                });
+            }
+
+            y += 6;
+            const total = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+            const perPerson = tourMates.length > 0 ? total / tourMates.length : 0;
+
+            doc.setFontSize(13);
+            doc.text("Summary", 14, y);
+            y += 7;
+            doc.setFontSize(10);
+            doc.text(`Total Tour Mates: ${tourMates.length}`, 14, y);
+            y = pdfNewLine(doc, y, 6);
+            doc.text(`Total Expenses: $${total.toFixed(2)}`, 14, y);
+            y = pdfNewLine(doc, y, 6);
+            doc.text(`Per Person: $${perPerson.toFixed(2)}`, 14, y);
+            y += 10;
+
+            if (tourMates.length > 0 && expenses.length > 0) {
+
+                const balances = tourMates.map(mate => {
+                    const paid = expenses
+                        .filter(e => Number(e.payer_id) === Number(mate.id))
+                        .reduce((sum, e) => sum + Number(e.amount), 0);
+                    return { name: mate.name, balance: paid - perPerson };
+                });
+
+                doc.setFontSize(13);
+                doc.text("Individual Balances", 14, y);
+                y += 7;
+                doc.setFontSize(10);
+
+                balances.forEach(b => {
+                    let text;
+                    if (b.balance > 0.01) text = `${b.name}: Gets back $${b.balance.toFixed(2)}`;
+                    else if (b.balance < -0.01) text = `${b.name}: Owes $${(-b.balance).toFixed(2)}`;
+                    else text = `${b.name}: All settled up`;
+                    doc.text(text, 14, y);
+                    y = pdfNewLine(doc, y, 6);
+                });
+
+            }
+
+            doc.save(`${tripName.replace(/\s+/g, "_")}_expense_report.pdf`);
+
+        }
+
+
+        function downloadPersonalPdf() {
+
+            if (!currentTripId) {
+                alert("Please open a trip first.");
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const tripName = currentTripNameHeading.textContent || "Trip";
+            let y = 20;
+
+            doc.setFontSize(18);
+            doc.text(`Personal Expenses - ${tripName}`, 14, y);
+            y += 8;
+
+            doc.setFontSize(10);
+            doc.setTextColor(120);
+            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, y);
+            doc.setTextColor(0);
+            y += 12;
+
+            doc.setFontSize(10);
+
+            if (personalExpenses.length === 0) {
+                doc.text("No personal expenses added.", 14, y);
+                y += 6;
+            } else {
+                let total = 0;
+                personalExpenses.forEach(expense => {
+                    const amount = Number(expense.amount);
+                    total += amount;
+                    const dateParts = String(expense.expense_date).split("-");
+                    const formattedDate = dateParts.length === 3
+                        ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`
+                        : expense.expense_date;
+                    doc.text(
+                        `- ${expense.description} | ${formattedDate} | $${amount.toFixed(2)}`,
+                        14, y
+                    );
+                    y = pdfNewLine(doc, y, 6);
+                });
+
+                y += 8;
+                doc.setFontSize(13);
+                doc.text(`Total: $${total.toFixed(2)}`, 14, y);
+            }
+
+            doc.save(`${tripName.replace(/\s+/g, "_")}_personal_expenses.pdf`);
+
+        }
+
+
+        // ==========================================
         // EVENTS
         // ==========================================
 
@@ -4284,6 +4577,14 @@
             "click",
             addPersonalExpenseFunction
         );
+
+
+        document.getElementById("download-trip-pdf")
+            .addEventListener("click", downloadTripPdf);
+
+
+        document.getElementById("download-personal-pdf")
+            .addEventListener("click", downloadPersonalPdf);
 
 
         // ==========================================

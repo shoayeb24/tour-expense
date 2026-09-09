@@ -9,17 +9,38 @@
 
     <title>Tour Expense Calculator</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
+
         :root {
 
-            --primary-color: #1a6ae2;
-            --secondary-color: #03347c;
-            --light-color: #f0f4f8;
-            --dark-color: #050d15;
-            --success-color: #2ecc71;
-            --danger-color: #e74c3c;
-            --warning-color: #f39c12;
+            --ink: #16332E;
+            --ink-soft: #4B6560;
+            --sand: #FBF6EC;
+            --sand-dim: #F1E9D8;
+            --paper: #FFFFFF;
+
+            --teal: #0F6E56;
+            --teal-deep: #0A4F3E;
+            --teal-tint: #E1F5EE;
+
+            --coral: #D85A30;
+            --coral-deep: #A5401F;
+            --coral-tint: #FAECE7;
+
+            --amber: #EF9F27;
+            --amber-deep: #B5730E;
+            --amber-tint: #FBEEDA;
+
+            --danger: #C6432E;
+            --danger-tint: #FBEAE6;
+
+            --radius-lg: 18px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
 
         }
 
@@ -29,44 +50,96 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
 
         }
 
 
         body {
 
-            background-color: var(--light-color);
-            color: var(--dark-color);
+            background:
+                radial-gradient(circle at 15% 0%, #EAF3E4 0%, transparent 45%),
+                radial-gradient(circle at 100% 20%, #FDEFE0 0%, transparent 40%),
+                var(--sand);
+            color: var(--ink);
+            min-height: 100vh;
+
+        }
+
+
+        h1, h2, h3 {
+
+            font-family: 'Fraunces', serif;
+            font-weight: 600;
+            color: var(--ink);
+            letter-spacing: -0.01em;
 
         }
 
 
         .container {
 
-            max-width: 1200px;
+            position: relative;
+            max-width: 1180px;
             margin: auto;
-            padding: 20px;
+            padding: 28px 20px 60px;
 
         }
 
+
+        /* ==========================================
+           HEADER
+        ========================================== */
 
         header {
 
             position: relative;
             text-align: center;
-            margin-bottom: 30px;
-            padding: 25px;
-            background: var(--primary-color);
-            color: white;
-            border-radius: 8px;
+            margin-bottom: 32px;
+            padding: 46px 32px 42px;
+            background: linear-gradient(135deg, var(--teal) 0%, var(--teal-deep) 100%);
+            color: #fff;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+
+        }
+
+
+        header::after {
+
+            content: "";
+            position: absolute;
+            right: -40px;
+            bottom: -60px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.07);
+
+        }
+
+
+        header::before {
+
+            content: "";
+            position: absolute;
+            left: -50px;
+            top: -70px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
 
         }
 
 
         h1 {
 
-            font-size: 2.5rem;
+            font-size: 3rem;
+            color: #fff;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
 
         }
 
@@ -74,15 +147,23 @@
         .description {
 
             margin-top: 10px;
+            color: rgba(255,255,255,0.85);
+            font-size: 1.05rem;
+            position: relative;
+            z-index: 1;
 
         }
 
 
+        /* ==========================================
+           LAYOUT
+        ========================================== */
+
         .app-container {
 
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            grid-template-columns: 1.05fr 0.95fr;
+            gap: 24px;
 
         }
 
@@ -95,33 +176,61 @@
 
             }
 
+            header {
+
+                padding: 40px 20px 34px;
+
+            }
+
+            h1 {
+
+                font-size: 2.1rem;
+
+            }
+
         }
 
 
         .card {
 
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, .1);
+            background: var(--paper);
+            padding: 24px 24px 26px;
+            border-radius: var(--radius-lg);
+            margin-bottom: 22px;
+            border: 1px solid var(--sand-dim);
+            box-shadow: 0 1px 2px rgba(22,51,46,0.04);
 
         }
 
 
         .card h2 {
 
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            border-bottom: 2px solid var(--light-color);
-            padding-bottom: 10px;
+            font-size: 1.3rem;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--sand-dim);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+
+        }
+
+
+        .card h2::before {
+
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--coral);
+            display: inline-block;
 
         }
 
 
         .input-group {
 
-            margin-bottom: 15px;
+            margin-bottom: 16px;
 
         }
 
@@ -129,8 +238,10 @@
         label {
 
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
+            margin-bottom: 6px;
+            font-weight: 600;
+            font-size: 0.86rem;
+            color: var(--ink-soft);
 
         }
 
@@ -139,51 +250,82 @@
         select {
 
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
+            padding: 11px 14px;
+            border: 1.5px solid var(--sand-dim);
+            border-radius: var(--radius-sm);
+            font-size: 0.98rem;
+            background: var(--sand);
+            color: var(--ink);
+            transition: border-color .15s ease, background .15s ease;
+
+        }
+
+
+        input:focus,
+        select:focus {
+
+            outline: none;
+            border-color: var(--teal);
+            background: #fff;
 
         }
 
 
         button {
 
-            background: var(--primary-color);
+            background: var(--teal);
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
+            padding: 11px 18px;
+            border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.96rem;
+            font-weight: 600;
+            transition: background .15s ease, transform .1s ease;
 
         }
 
 
         button:hover {
 
-            background: var(--secondary-color);
+            background: var(--teal-deep);
+
+        }
+
+
+        button:active {
+
+            transform: scale(0.98);
 
         }
 
 
         .btn-danger {
 
-            background: var(--danger-color);
+            background: var(--coral);
 
         }
 
 
         .btn-danger:hover {
 
-            background: #c0392b;
+            background: var(--coral-deep);
 
         }
 
 
         .btn-success {
 
-            background: var(--success-color);
+            background: var(--amber);
+            color: var(--amber-deep);
+
+        }
+
+
+        .btn-success:hover {
+
+            background: #E08E12;
+            color: #fff;
 
         }
 
@@ -191,7 +333,7 @@
         .list {
 
             list-style: none;
-            margin-top: 15px;
+            margin-top: 6px;
 
         }
 
@@ -201,24 +343,140 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 12px;
-            border-bottom: 1px solid #eee;
+            padding: 13px 4px;
+            border-bottom: 1px solid var(--sand-dim);
+            gap: 10px;
+
+        }
+
+
+        .list-item:last-child {
+
+            border-bottom: none;
+
+        }
+
+
+        /* ==========================================
+           AVATAR CHIPS (tour mates)
+        ========================================== */
+
+        .mate-chip {
+
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+        }
+
+
+        .mate-avatar {
+
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+            font-family: 'Fraunces', serif;
+            flex-shrink: 0;
+
+        }
+
+
+        .tint-1 { background: var(--teal); }
+        .tint-2 { background: var(--coral); }
+        .tint-3 { background: var(--amber); }
+        .tint-4 { background: #6C5CE7; }
+        .tint-5 { background: #2A9D8F; }
+        .tint-6 { background: #E07A5F; }
+
+
+        /* ==========================================
+           TRIP CARDS (My Trips landing page)
+        ========================================== */
+
+        .trip-card {
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            padding: 18px 20px;
+            margin-bottom: 12px;
+            background: var(--sand);
+            border: 1.5px solid var(--sand-dim);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: border-color .15s ease, background .15s ease;
+
+        }
+
+
+        .trip-card:hover {
+
+            border-color: var(--teal);
+            background: var(--teal-tint);
+
+        }
+
+
+        .trip-card-name {
+
+            font-family: 'Fraunces', serif;
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+
+        }
+
+
+        .trip-card-stats {
+
+            display: flex;
+            gap: 16px;
+            font-size: 0.85rem;
+            color: var(--ink-soft);
+            flex-wrap: wrap;
+
+        }
+
+
+        .trip-card-stats strong {
+
+            color: var(--ink);
+
+        }
+
+
+        .trip-card-actions {
+
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
 
         }
 
 
         .delete-btn {
 
-            background: var(--danger-color);
-            padding: 5px 10px;
-            font-size: 14px;
+            background: transparent;
+            color: var(--coral);
+            border: 1.5px solid var(--coral-tint);
+            padding: 6px 12px;
+            font-size: 13px;
 
         }
 
 
         .delete-btn:hover {
 
-            background: #c0392b;
+            background: var(--coral-tint);
+            color: var(--coral-deep);
 
         }
 
@@ -226,17 +484,22 @@
         .empty-state {
 
             text-align: center;
-            padding: 20px;
-            color: #777;
+            padding: 26px 10px;
+            color: var(--ink-soft);
+            font-size: 0.92rem;
 
         }
 
+
+        /* ==========================================
+           SUMMARY
+        ========================================== */
 
         .summary {
 
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
+            gap: 12px;
 
         }
 
@@ -254,86 +517,165 @@
 
         .summary-item {
 
-            text-align: center;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
+            text-align: left;
+            padding: 16px 16px;
+            background: var(--teal-tint);
+            border-radius: var(--radius-md);
+
+        }
+
+
+        .summary-item:nth-child(2) {
+
+            background: var(--amber-tint);
+
+        }
+
+
+        .summary-item:nth-child(3) {
+
+            background: var(--coral-tint);
+
+        }
+
+
+        .summary-item > div:first-child {
+
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--ink-soft);
+            margin-bottom: 4px;
 
         }
 
 
         .summary-value {
 
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: var(--primary-color);
+            font-size: 1.4rem;
+            font-weight: 700;
+            font-family: 'Fraunces', serif;
+            color: var(--teal-deep);
 
         }
 
+
+        .summary-item:nth-child(2) .summary-value {
+
+            color: var(--amber-deep);
+
+        }
+
+
+        .summary-item:nth-child(3) .summary-value {
+
+            color: var(--coral-deep);
+
+        }
+
+
+        /* ==========================================
+           BALANCES / SETTLEMENTS
+        ========================================== */
 
         .balance-item {
 
             display: flex;
             justify-content: space-between;
-            padding: 12px;
+            align-items: center;
+            padding: 14px 16px;
             margin-bottom: 10px;
-            border-radius: 6px;
+            border-radius: var(--radius-md);
 
         }
 
 
         .positive {
 
-            border-left: 4px solid var(--success-color);
-            background: #e8f5e9;
+            background: var(--teal-tint);
 
         }
 
 
         .negative {
 
-            border-left: 4px solid var(--danger-color);
-            background: #ffeaea;
+            background: var(--coral-tint);
 
         }
 
 
         .neutral {
 
-            border-left: 4px solid var(--warning-color);
-            background: #fff8e1;
+            background: var(--amber-tint);
 
         }
 
 
         .positive .balance-amount {
 
-            color: var(--success-color);
+            color: var(--teal-deep);
 
         }
 
 
         .negative .balance-amount {
 
-            color: var(--danger-color);
+            color: var(--coral-deep);
 
         }
 
 
         .neutral .balance-amount {
 
-            color: var(--warning-color);
+            color: var(--amber-deep);
+
+        }
+
+
+        .balance-amount {
+
+            font-weight: 700;
+            font-family: 'Fraunces', serif;
 
         }
 
 
         .settlement-item {
 
-            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 14px 16px;
             margin-bottom: 10px;
-            background: #f8f9fa;
-            border-left: 4px solid var(--primary-color);
-            border-radius: 5px;
+            background: var(--coral-tint);
+            border-radius: var(--radius-md);
+            font-size: 0.95rem;
+
+        }
+
+
+        .settlement-item .settlement-names {
+
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+
+        }
+
+
+        .settlement-item .settlement-arrow {
+
+            color: var(--coral-deep);
+            font-size: 1.1rem;
+
+        }
+
+
+        .settlement-item .settlement-amount {
+
+            font-family: 'Fraunces', serif;
+            font-weight: 700;
+            color: var(--coral-deep);
 
         }
 
@@ -341,7 +683,7 @@
         .actions {
 
             display: flex;
-            gap: 10px;
+            gap: 12px;
 
         }
 
@@ -360,7 +702,7 @@
         .menu-container {
 
             position: absolute;
-            top: 20px;
+            top: 28px;
             left: 20px;
             z-index: 1000;
 
@@ -369,22 +711,21 @@
 
         .menu-button {
 
-            width: 45px;
-            height: 45px;
+            width: 46px;
+            height: 46px;
             padding: 0;
-            font-size: 26px;
-            background: white;
-            color: var(--primary-color);
-            border-radius: 8px;
-            border: none;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, .15);
+            font-size: 22px;
+            background: rgba(255,255,255,0.16);
+            color: #fff;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(255,255,255,0.25);
 
         }
 
 
         .menu-button:hover {
 
-            background: var(--light-color);
+            background: rgba(255,255,255,0.26);
 
         }
 
@@ -393,13 +734,14 @@
 
             display: none;
             position: absolute;
-            top: 52px;
+            top: 54px;
             left: 0;
-            width: 190px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, .15);
+            width: 200px;
+            background: var(--paper);
+            border-radius: var(--radius-md);
+            box-shadow: 0 12px 30px rgba(22,51,46,0.18);
             padding: 8px;
+            border: 1px solid var(--sand-dim);
 
         }
 
@@ -415,17 +757,18 @@
 
             width: 100%;
             text-align: left;
-            background: white;
-            color: var(--dark-color);
-            padding: 10px 12px;
+            background: transparent;
+            color: var(--ink);
+            padding: 11px 12px;
             margin-bottom: 2px;
+            font-weight: 500;
 
         }
 
 
         .menu-dropdown button:hover {
 
-            background: var(--light-color);
+            background: var(--sand);
 
         }
 
@@ -455,27 +798,47 @@
         .back-button {
 
             margin-bottom: 20px;
-            background: var(--secondary-color);
+            background: var(--paper);
+            color: var(--ink);
+            border: 1.5px solid var(--sand-dim);
+
+        }
+
+
+        .back-button:hover {
+
+            background: var(--sand);
 
         }
 
 
         .personal-total {
 
-            margin-top: 20px;
-            padding: 18px;
-            background: #f0f4f8;
-            border-radius: 8px;
+            margin-top: 8px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--teal-tint), var(--amber-tint));
+            border-radius: var(--radius-md);
             text-align: center;
+
+        }
+
+
+        .personal-total > div:first-child {
+
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--ink-soft);
+            margin-bottom: 4px;
 
         }
 
 
         .personal-total-value {
 
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: var(--primary-color);
+            font-size: 1.9rem;
+            font-weight: 700;
+            font-family: 'Fraunces', serif;
+            color: var(--teal-deep);
 
         }
 
@@ -486,8 +849,15 @@
             justify-content: space-between;
             align-items: center;
             gap: 15px;
-            padding: 15px;
-            border-bottom: 1px solid #eee;
+            padding: 16px 4px;
+            border-bottom: 1px solid var(--sand-dim);
+
+        }
+
+
+        .personal-expense-item:last-child {
+
+            border-bottom: none;
 
         }
 
@@ -501,25 +871,26 @@
 
         .personal-expense-description {
 
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-weight: 600;
+            margin-bottom: 4px;
 
         }
 
 
         .personal-expense-date {
 
-            color: #777;
-            font-size: 14px;
+            color: var(--ink-soft);
+            font-size: 13px;
 
         }
 
 
         .personal-expense-amount {
 
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-right: 10px;
+            font-weight: 700;
+            font-family: 'Fraunces', serif;
+            color: var(--coral-deep);
+            margin-right: 4px;
 
         }
 
@@ -530,26 +901,28 @@
 
         .profile-item {
 
-            padding: 15px;
+            padding: 16px 18px;
             margin-bottom: 12px;
-            background: #f8f9fa;
-            border-radius: 8px;
+            background: var(--sand);
+            border-radius: var(--radius-md);
+            border-left: 4px solid var(--teal);
 
         }
 
 
         .profile-label {
 
-            color: #777;
-            font-size: 14px;
-            margin-bottom: 5px;
+            color: var(--ink-soft);
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 4px;
 
         }
 
 
         .profile-value {
 
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 600;
 
         }
@@ -571,6 +944,53 @@
             }
 
         }
+
+
+        /* ==========================================
+           AUTH SCREEN
+        ========================================== */
+
+        .auth-wrap {
+
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+
+        }
+
+
+        .auth-card {
+
+            width: 100%;
+            max-width: 420px;
+            padding: 38px 34px;
+            background: var(--paper);
+            border-radius: var(--radius-lg);
+            box-shadow: 0 20px 50px rgba(22,51,46,0.10);
+            border: 1px solid var(--sand-dim);
+
+        }
+
+
+        .auth-eyebrow {
+
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--coral);
+            margin-bottom: 6px;
+
+        }
+
+
+        #auth-title {
+
+            font-size: 1.7rem;
+            margin-bottom: 24px;
+
+        }
+
     </style>
 
 </head>
@@ -583,105 +1003,137 @@
          AUTH SCREEN
     ========================================== -->
 
-    <div id="auth-screen" style="
-            max-width:450px;
-            margin:60px auto;
-            padding:30px;
-            background:white;
-            border-radius:10px;
-            box-shadow:0 4px 15px rgba(0,0,0,.12);
-        ">
+    <div class="auth-wrap">
 
-        <h2 id="auth-title" style="
-                text-align:center;
-                color:var(--primary-color);
-                margin-bottom:25px;
-            ">
-            Login
-        </h2>
+        <div id="auth-screen" class="auth-card">
+
+            <div class="auth-eyebrow">Tour Expense Calculator</div>
+
+            <h2 id="auth-title">Login</h2>
 
 
-        <!-- SIGN UP NAME -->
+            <!-- SIGN UP NAME -->
 
-        <div id="signup-name-group" class="input-group" style="display:none;">
+            <div
+                id="signup-name-group"
+                class="input-group"
+                style="display:none;"
+            >
 
-            <label>Name</label>
+                <label>Name</label>
 
-            <input type="text" id="signup-name" placeholder="Enter your name">
+                <input
+                    type="text"
+                    id="signup-name"
+                    placeholder="Enter your name"
+                >
 
-        </div>
-
-
-        <!-- EMAIL -->
-
-        <div class="input-group">
-
-            <label>Email</label>
-
-            <input type="email" id="auth-email" placeholder="Enter your email">
-
-        </div>
+            </div>
 
 
-        <!-- PHONE -->
+            <!-- EMAIL -->
 
-        <div id="signup-number-group" class="input-group" style="display:none;">
+            <div class="input-group">
 
-            <label>Phone Number</label>
+                <label>Email</label>
 
-            <input type="tel" id="signup-number" placeholder="Enter your phone number">
+                <input
+                    type="email"
+                    id="auth-email"
+                    placeholder="Enter your email"
+                >
 
-        </div>
-
-
-        <!-- PASSWORD -->
-
-        <div class="input-group">
-
-            <label>Password</label>
-
-            <input type="password" id="auth-password" placeholder="Enter your password">
-
-        </div>
+            </div>
 
 
-        <!-- BUTTON -->
+            <!-- PHONE -->
 
-        <button id="auth-button" style="width:100%;">
-            Login
-        </button>
+            <div
+                id="signup-number-group"
+                class="input-group"
+                style="display:none;"
+            >
+
+                <label>Phone Number</label>
+
+                <input
+                    type="tel"
+                    id="signup-number"
+                    placeholder="Enter your phone number"
+                >
+
+            </div>
 
 
-        <!-- ERROR -->
+            <!-- PASSWORD -->
 
-        <p id="auth-message" style="
-                margin-top:15px;
-                text-align:center;
-                color:var(--danger-color);
-            "></p>
+            <div class="input-group">
+
+                <label>Password</label>
+
+                <input
+                    type="password"
+                    id="auth-password"
+                    placeholder="Enter your password"
+                >
+
+            </div>
 
 
-        <!-- SWITCH -->
+            <!-- BUTTON -->
 
-        <p style="
-                text-align:center;
-                margin-top:20px;
-            ">
-
-            <span id="auth-switch-text">
-                Don't have an account?
-            </span>
-
-            <button id="auth-switch" style="
-                    background:none;
-                    color:var(--primary-color);
-                    padding:0;
-                    margin-left:5px;
-                ">
-                Sign Up
+            <button
+                id="auth-button"
+                style="width:100%;"
+            >
+                Login
             </button>
 
-        </p>
+
+            <!-- ERROR -->
+
+            <p
+                id="auth-message"
+                style="
+                    margin-top:15px;
+                    text-align:center;
+                    color:var(--danger);
+                    font-size:0.9rem;
+                "
+            ></p>
+
+
+            <!-- SWITCH -->
+
+            <p
+                style="
+                    text-align:center;
+                    margin-top:22px;
+                    font-size:0.92rem;
+                    color:var(--ink-soft);
+                "
+            >
+
+                <span id="auth-switch-text">
+                    Don't have an account?
+                </span>
+
+                <button
+                    id="auth-switch"
+                    style="
+                        background:none;
+                        color:var(--teal);
+                        padding:0;
+                        margin-left:5px;
+                        font-weight:700;
+                    "
+                >
+                    Sign Up
+                </button>
+
+            </p>
+
+        </div>
 
     </div>
 
@@ -690,38 +1142,48 @@
          MAIN APP
     ========================================== -->
 
-    <div class="container" id="app-container" style="display:none;">
+    <div
+        class="container"
+        id="app-container"
+        style="display:none;"
+    >
 
 
-        <header>
+        <!-- HAMBURGER MENU (kept outside header so its dropdown isn't clipped by header's rounded-corner overflow) -->
 
-            <!-- HAMBURGER MENU -->
+        <div class="menu-container">
 
-            <div class="menu-container">
+            <button
+                id="menu-button"
+                class="menu-button"
+            >
+                ☰
+            </button>
 
-                <button id="menu-button" class="menu-button">
-                    ☰
+
+            <div
+                id="menu-dropdown"
+                class="menu-dropdown"
+            >
+
+                <button id="profile-button">
+                    Profile
                 </button>
 
+                <button id="personal-expenses-button">
+                    Personal Expenses
+                </button>
 
-                <div id="menu-dropdown" class="menu-dropdown">
-
-                    <button id="profile-button">
-                        Profile
-                    </button>
-
-                    <button id="personal-expenses-button">
-                        Personal Expenses
-                    </button>
-
-                    <button id="logout-button">
-                        Logout
-                    </button>
-
-                </div>
+                <button id="logout-button">
+                    Logout
+                </button>
 
             </div>
 
+        </div>
+
+
+        <header>
 
             <h1>
                 Tour Expense Calculator
@@ -735,10 +1197,72 @@
 
 
         <!-- ==========================================
+             TRIPS PAGE (landing page after login)
+        ========================================== -->
+
+        <div
+            id="trips-page"
+            class="page-section active"
+        >
+
+            <div class="card">
+
+                <h2>
+                    Start a New Trip
+                </h2>
+
+                <div class="input-group">
+                    <label>Trip / Place Name</label>
+                    <input
+                        type="text"
+                        id="trip-name"
+                        placeholder="e.g. Cox's Bazar, Sylhet, Bandarban"
+                    >
+                </div>
+
+                <button id="add-trip">
+                    Create Trip
+                </button>
+
+            </div>
+
+
+            <div class="card">
+
+                <h2>
+                    My Trips
+                </h2>
+
+                <div id="trips-list">
+
+                    <div class="empty-state">
+                        No trips yet. Create your first trip above.
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==========================================
              TOUR EXPENSE CONTENT
         ========================================== -->
 
-        <div class="app-container" id="tour-expense-content">
+        <div
+            class="app-container"
+            id="tour-expense-content"
+            style="display:none;"
+        >
+
+
+            <div style="grid-column: 1 / -1;">
+                <button id="back-to-trips" class="back-button">
+                    ← Back to My Trips
+                </button>
+                <h2 id="current-trip-name" style="margin-bottom:10px;"></h2>
+            </div>
 
 
             <!-- LEFT SIDE -->
@@ -759,7 +1283,11 @@
 
                         <label>Name</label>
 
-                        <input type="text" id="tourmate-name" placeholder="Enter name">
+                        <input
+                            type="text"
+                            id="tourmate-name"
+                            placeholder="Enter name"
+                        >
 
                     </div>
 
@@ -769,12 +1297,15 @@
                     </button>
 
 
-                    <h3 style="margin-top:20px">
+                    <h3 style="margin-top:22px; font-size:1.05rem;">
                         Tour Mates
                     </h3>
 
 
-                    <ul id="tourmate-list" class="list">
+                    <ul
+                        id="tourmate-list"
+                        class="list"
+                    >
 
                         <li class="empty-state">
                             No tour mates added yet
@@ -800,7 +1331,11 @@
                             Description
                         </label>
 
-                        <input type="text" id="expense-description" placeholder="What was this expense for?">
+                        <input
+                            type="text"
+                            id="expense-description"
+                            placeholder="What was this expense for?"
+                        >
 
                     </div>
 
@@ -811,14 +1346,20 @@
                             Amount
                         </label>
 
-                        <input type="number" id="expense-amount" placeholder="Enter amount">
+                        <input
+                            type="number"
+                            id="expense-amount"
+                            placeholder="Enter amount"
+                        >
 
                     </div>
+
 
                     <div class="input-group">
                         <label>Date</label>
                         <input type="date" id="expense-date">
                     </div>
+
 
                     <div class="input-group">
 
@@ -842,12 +1383,15 @@
                     </button>
 
 
-                    <h3 style="margin-top:20px">
+                    <h3 style="margin-top:22px; font-size:1.05rem;">
                         Expenses
                     </h3>
 
 
-                    <ul id="expense-list" class="list">
+                    <ul
+                        id="expense-list"
+                        class="list"
+                    >
 
                         <li class="empty-state">
                             No expenses added yet
@@ -883,7 +1427,10 @@
                                 Total Tour Mates
                             </div>
 
-                            <div class="summary-value" id="total-tourmates">
+                            <div
+                                class="summary-value"
+                                id="total-tourmates"
+                            >
                                 0
                             </div>
 
@@ -896,7 +1443,10 @@
                                 Total Expenses
                             </div>
 
-                            <div class="summary-value" id="total-expenses">
+                            <div
+                                class="summary-value"
+                                id="total-expenses"
+                            >
                                 $0.00
                             </div>
 
@@ -909,7 +1459,10 @@
                                 Per Person
                             </div>
 
-                            <div class="summary-value" id="per-person">
+                            <div
+                                class="summary-value"
+                                id="per-person"
+                            >
                                 $0.00
                             </div>
 
@@ -970,12 +1523,18 @@
 
                     <div class="actions">
 
-                        <button id="calculate" class="btn-success">
+                        <button
+                            id="calculate"
+                            class="btn-success"
+                        >
                             Calculate
                         </button>
 
 
-                        <button id="reset" class="btn-danger">
+                        <button
+                            id="reset"
+                            class="btn-danger"
+                        >
                             Reset All
                         </button>
 
@@ -993,9 +1552,15 @@
              PROFILE PAGE
         ========================================== -->
 
-        <div id="profile-page" class="page-section">
+        <div
+            id="profile-page"
+            class="page-section"
+        >
 
-            <button id="back-from-profile" class="back-button">
+            <button
+                id="back-from-profile"
+                class="back-button"
+            >
                 ← Back to Tour Expense
             </button>
 
@@ -1013,7 +1578,10 @@
                         Name
                     </div>
 
-                    <div id="profile-name" class="profile-value">
+                    <div
+                        id="profile-name"
+                        class="profile-value"
+                    >
                         -
                     </div>
 
@@ -1026,7 +1594,10 @@
                         Email
                     </div>
 
-                    <div id="profile-email" class="profile-value">
+                    <div
+                        id="profile-email"
+                        class="profile-value"
+                    >
                         -
                     </div>
 
@@ -1039,7 +1610,10 @@
                         Phone Number
                     </div>
 
-                    <div id="profile-number" class="profile-value">
+                    <div
+                        id="profile-number"
+                        class="profile-value"
+                    >
                         -
                     </div>
 
@@ -1054,9 +1628,15 @@
              PERSONAL EXPENSES PAGE
         ========================================== -->
 
-        <div id="personal-expenses-page" class="page-section">
+        <div
+            id="personal-expenses-page"
+            class="page-section"
+        >
 
-            <button id="back-to-tour" class="back-button">
+            <button
+                id="back-to-tour"
+                class="back-button"
+            >
                 ← Back to Tour Expense
             </button>
 
@@ -1067,10 +1647,12 @@
                     Personal Expenses
                 </h2>
 
-                <p style="
+                <p
+                    style="
                         margin-bottom:20px;
-                        color:#666;
-                    ">
+                        color:var(--ink-soft);
+                    "
+                >
                     Keep track of your personal expenses.
                 </p>
 
@@ -1083,7 +1665,11 @@
                         Description
                     </label>
 
-                    <input type="text" id="personal-description" placeholder="What did you spend on?">
+                    <input
+                        type="text"
+                        id="personal-description"
+                        placeholder="What did you spend on?"
+                    >
 
                 </div>
 
@@ -1096,7 +1682,12 @@
                         Amount
                     </label>
 
-                    <input type="number" id="personal-amount" placeholder="Enter amount" step="0.01">
+                    <input
+                        type="number"
+                        id="personal-amount"
+                        placeholder="Enter amount"
+                        step="0.01"
+                    >
 
                 </div>
 
@@ -1109,7 +1700,10 @@
                         Date
                     </label>
 
-                    <input type="date" id="personal-date">
+                    <input
+                        type="date"
+                        id="personal-date"
+                    >
 
                 </div>
 
@@ -1147,7 +1741,10 @@
                         Total Personal Expense
                     </div>
 
-                    <div id="personal-total" class="personal-total-value">
+                    <div
+                        id="personal-total"
+                        class="personal-total-value"
+                    >
                         $0.00
                     </div>
 
@@ -1215,6 +1812,8 @@
 
         let isLoginMode = true;
 
+        let currentTripId = null;
+
 
         // ==========================================
         // MENU
@@ -1265,6 +1864,11 @@
                 "tour-expense-content"
             );
 
+        const tripsPage =
+            document.getElementById(
+                "trips-page"
+            );
+
         const profilePage =
             document.getElementById(
                 "profile-page"
@@ -1287,6 +1891,29 @@
             );
 
 
+        // Tracks which main view (trips list or an open trip) to
+        // return to after visiting Profile / Personal Expenses.
+        let activeMainView = "trips";
+
+        function showMainView(view) {
+
+            if (view === "trip" && currentTripId) {
+
+                tripsPage.classList.remove("active");
+                tourExpenseContent.style.display = "grid";
+
+            } else {
+
+                tourExpenseContent.style.display = "none";
+                tripsPage.classList.add("active");
+
+            }
+
+            activeMainView = view;
+
+        }
+
+
         // ==========================================
         // PROFILE
         // ==========================================
@@ -1295,6 +1922,10 @@
 
             tourExpenseContent.style.display =
                 "none";
+
+            tripsPage.classList.remove(
+                "active"
+            );
 
             personalExpensesPage.classList.remove(
                 "active"
@@ -1360,8 +1991,7 @@
                     "active"
                 );
 
-                tourExpenseContent.style.display =
-                    "grid";
+                showMainView(activeMainView);
 
             }
         );
@@ -1377,6 +2007,10 @@
 
                 tourExpenseContent.style.display =
                     "none";
+
+                tripsPage.classList.remove(
+                    "active"
+                );
 
                 profilePage.classList.remove(
                     "active"
@@ -1404,8 +2038,7 @@
                     "active"
                 );
 
-                tourExpenseContent.style.display =
-                    "grid";
+                showMainView(activeMainView);
 
             }
         );
@@ -1731,7 +2364,7 @@
                     );
 
 
-                    authScreen.style.display =
+                    authScreen.closest(".auth-wrap").style.display =
                         "none";
 
 
@@ -1741,7 +2374,7 @@
                         "block";
 
 
-                    loadData();
+                    loadTrips();
 
                 }
 
@@ -1782,6 +2415,217 @@
             };
 
         }
+
+
+        // ==========================================
+        // TRIPS
+        // ==========================================
+
+        const tripNameInput =
+            document.getElementById("trip-name");
+
+        const addTripButton =
+            document.getElementById("add-trip");
+
+        const tripsList =
+            document.getElementById("trips-list");
+
+        const backToTripsButton =
+            document.getElementById("back-to-trips");
+
+        const currentTripNameHeading =
+            document.getElementById("current-trip-name");
+
+
+        async function loadTrips() {
+
+            try {
+
+                const response = await fetch(
+                    `${API}/api/trips`,
+                    { headers: getAuthHeaders() }
+                );
+
+                if (response.status === 401 || response.status === 403) {
+                    logout();
+                    return;
+                }
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to load trips");
+                }
+
+                renderTrips(data);
+
+            }
+
+            catch (error) {
+
+                console.error("Load trips error:", error);
+                alert("Failed to load trips");
+
+            }
+
+        }
+
+
+        function renderTrips(trips) {
+
+            if (trips.length === 0) {
+
+                tripsList.innerHTML = `
+                    <div class="empty-state">
+                        No trips yet. Create your first trip above.
+                    </div>
+                `;
+
+                return;
+
+            }
+
+            tripsList.innerHTML = "";
+
+            trips.forEach(trip => {
+
+                const mateCount = Number(trip.mate_count) || 0;
+                const totalCost = Number(trip.total_cost) || 0;
+                const perPersonCost = mateCount > 0 ? totalCost / mateCount : 0;
+
+                const div = document.createElement("div");
+                div.className = "trip-card";
+
+                div.innerHTML = `
+                    <div onclick="openTrip(${trip.id}, '${trip.name.replace(/'/g, "\\'")}')" style="flex:1;">
+                        <div class="trip-card-name">${trip.name}</div>
+                        <div class="trip-card-stats">
+                            <span>Mates: <strong>${mateCount}</strong></span>
+                            <span>Total: <strong>$${totalCost.toFixed(2)}</strong></span>
+                            <span>Per person: <strong>$${perPersonCost.toFixed(2)}</strong></span>
+                        </div>
+                    </div>
+                    <div class="trip-card-actions">
+                        <button class="delete-btn" onclick="event.stopPropagation(); deleteTrip(${trip.id})">Delete</button>
+                    </div>
+                `;
+
+                tripsList.appendChild(div);
+
+            });
+
+        }
+
+
+        async function createTripFunction() {
+
+            const name = tripNameInput.value.trim();
+
+            if (!name) {
+                alert("Please enter a trip / place name");
+                return;
+            }
+
+            try {
+
+                const response = await fetch(
+                    `${API}/api/trips`,
+                    {
+                        method: "POST",
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({ name: name })
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert(data.error);
+                    return;
+                }
+
+                tripNameInput.value = "";
+
+                await loadTrips();
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+                alert("Server connection failed!");
+
+            }
+
+        }
+
+
+        function openTrip(id, name) {
+
+            currentTripId = id;
+            activeMainView = "trip";
+
+            tripsPage.classList.remove("active");
+            tourExpenseContent.style.display = "grid";
+
+            currentTripNameHeading.textContent = name;
+
+            loadData();
+
+        }
+
+
+        async function deleteTrip(id) {
+
+            if (!confirm("Delete this trip? All its tour mates and expenses will be removed permanently.")) {
+                return;
+            }
+
+            try {
+
+                const response = await fetch(
+                    `${API}/api/trips/${id}`,
+                    {
+                        method: "DELETE",
+                        headers: getAuthHeaders()
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    alert(data.error);
+                    return;
+                }
+
+                await loadTrips();
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+                alert("Server connection failed!");
+
+            }
+
+        }
+
+
+        addTripButton.addEventListener("click", createTripFunction);
+
+
+        backToTripsButton.addEventListener("click", () => {
+
+            currentTripId = null;
+            activeMainView = "trips";
+
+            tourExpenseContent.style.display = "none";
+            tripsPage.classList.add("active");
+
+            loadTrips();
+
+        });
 
 
         // ==========================================
@@ -1887,7 +2731,7 @@
 
                 const matesResponse =
                     await fetch(
-                        `${API}/api/tourmates`,
+                        `${API}/api/tourmates?trip_id=${currentTripId}`,
                         {
                             headers:
                                 getAuthHeaders()
@@ -1897,7 +2741,7 @@
 
                 const expensesResponse =
                     await fetch(
-                        `${API}/api/expenses`,
+                        `${API}/api/expenses?trip_id=${currentTripId}`,
                         {
                             headers:
                                 getAuthHeaders()
@@ -1993,7 +2837,8 @@
 
                             body:
                                 JSON.stringify({
-                                    name: name
+                                    name: name,
+                                    trip_id: currentTripId
                                 })
 
                         }
@@ -2114,7 +2959,10 @@
             const payerId =
                 expensePayer.value;
 
-                const date = document.getElementById("expense-date").value;
+            const date =
+                document.getElementById(
+                    "expense-date"
+                ).value;
 
 
             if (!description) {
@@ -2177,7 +3025,11 @@
                                     payerId:
                                         payerId,
 
-                                        expense_date: date
+                                    expense_date:
+                                        date,
+
+                                    trip_id:
+                                        currentTripId
 
                                 })
 
@@ -2204,7 +3056,12 @@
 
                 expensePayer.value = "";
 
-                document.getElementById("expense-date").value = new Date().toISOString().split("T")[0];
+                document.getElementById(
+                    "expense-date"
+                ).value =
+                    new Date()
+                        .toISOString()
+                        .split("T")[0];
 
 
                 await loadData();
@@ -2329,9 +3186,10 @@
 
             tourmateList.innerHTML = "";
 
+            const tints = ["tint-1","tint-2","tint-3","tint-4","tint-5","tint-6"];
 
             tourMates.forEach(
-                mate => {
+                (mate, idx) => {
 
                     const li =
                         document.createElement(
@@ -2343,12 +3201,21 @@
                         "list-item";
 
 
+                    const initials = mate.name
+                        .trim()
+                        .split(/\s+/)
+                        .slice(0, 2)
+                        .map(w => w[0]?.toUpperCase() || "")
+                        .join("");
+
+                    const tint = tints[idx % tints.length];
+
+
                     li.innerHTML = `
 
-                        <span>
-                            <strong>
-                                ${mate.name}
-                            </strong>
+                        <span class="mate-chip">
+                            <span class="mate-avatar ${tint}">${initials}</span>
+                            <strong>${mate.name}</strong>
                         </span>
 
                         <button
@@ -2381,37 +3248,37 @@
 
         function updateExpenseList() {
 
-    if (expenses.length === 0) {
-        expenseList.innerHTML = `<li class="empty-state">No expenses added yet</li>`;
-        return;
-    }
+            if (expenses.length === 0) {
+                expenseList.innerHTML = `<li class="empty-state">No expenses added yet</li>`;
+                return;
+            }
 
-    expenseList.innerHTML = "";
+            expenseList.innerHTML = "";
 
-    expenses.forEach(expense => {
+            expenses.forEach((expense) => {
 
-        const li = document.createElement("li");
-        li.className = "list-item";
+                const li = document.createElement("li");
+                li.className = "list-item";
 
-        const dateParts = String(expense.expense_date).split("-");
-        const formattedDate = dateParts.length === 3
-            ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`
-            : expense.expense_date;
+                const dateParts = String(expense.expense_date).split("-");
+                const formattedDate = dateParts.length === 3
+                    ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`
+                    : expense.expense_date;
 
-        li.innerHTML = `
-            <div>
-                <strong>${expense.description}</strong>
-                <div>Paid by: ${expense.payer_name}</div>
-                <div style="font-size:13px;color:#777;">${formattedDate}</div>
-                <strong>$${Number(expense.amount).toFixed(2)}</strong>
-            </div>
-            <button class="delete-btn" onclick="deleteExpense(${expense.id})">Delete</button>
-        `;
+                li.innerHTML = `
+                    <div>
+                        <strong>${expense.description}</strong>
+                        <div style="font-size:13px;color:var(--ink-soft);margin-top:2px;">Paid by: ${expense.payer_name}</div>
+                        <div style="font-size:13px;color:var(--ink-soft);">${formattedDate || ""}</div>
+                        <strong style="display:block;margin-top:4px;font-family:'Fraunces',serif;">$${Number(expense.amount).toFixed(2)}</strong>
+                    </div>
+                    <button class="delete-btn" onclick="deleteExpense(${expense.id})">Delete</button>
+                `;
 
-        expenseList.appendChild(li);
-    });
+                expenseList.appendChild(li);
+            });
 
-}
+        }
 
 
         // ==========================================
@@ -2487,7 +3354,7 @@
             const per =
                 tourMates.length > 0
                     ? total /
-                    tourMates.length
+                      tourMates.length
                     : 0;
 
 
@@ -2727,23 +3594,15 @@
 
                     div.innerHTML = `
 
-                        <strong>
-                            ${s.from}
-                        </strong>
+                        <div class="settlement-names">
+                            <strong>${s.from}</strong>
+                            <span class="settlement-arrow">→</span>
+                            <strong>${s.to}</strong>
+                        </div>
 
-                        owes
-
-                        <strong>
-                            ${s.to}
-                        </strong>
-
-                        <br>
-
-                        Amount:
-
-                        <strong>
+                        <div class="settlement-amount">
                             $${s.amount.toFixed(2)}
-                        </strong>
+                        </div>
 
                     `;
 
@@ -2826,7 +3685,7 @@
                                 ${balance.name}
                             </strong>
 
-                            <div>
+                            <div style="font-size:13px;color:var(--ink-soft);">
                                 ${text}
                             </div>
 
@@ -2860,7 +3719,7 @@
 
             if (
                 !confirm(
-                    "Are you sure?\n\nThis will delete ALL tour mates and ALL expenses from MySQL."
+                    "Are you sure?\n\nThis will delete ALL tour mates and expenses for THIS TRIP only. Other trips and personal expenses are not affected."
                 )
             ) {
 
@@ -2873,7 +3732,7 @@
 
                 const response =
                     await fetch(
-                        `${API}/api/reset`,
+                        `${API}/api/reset?trip_id=${currentTripId}`,
                         {
 
                             method:
@@ -2990,7 +3849,10 @@
                 .toISOString()
                 .split("T")[0];
 
-                document.getElementById("expense-date").value = new Date().toISOString().split("T")[0];
+        document.getElementById("expense-date").value =
+            new Date()
+                .toISOString()
+                .split("T")[0];
 
 
         // ==========================================
@@ -3142,8 +4004,8 @@
                                     amount:
                                         amount,
 
-                                    expense_date: date
-
+                                    expense_date:
+                                        date
 
                                 })
 
@@ -3436,7 +4298,7 @@
 
         if (savedToken) {
 
-            authScreen.style.display =
+            authScreen.closest(".auth-wrap").style.display =
                 "none";
 
 
@@ -3446,7 +4308,7 @@
                 "block";
 
 
-            loadData();
+            loadTrips();
 
         }
 
