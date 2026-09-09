@@ -395,73 +395,6 @@
         .tint-6 { background: #E07A5F; }
 
 
-        /* ==========================================
-           TRIP CARDS (My Trips landing page)
-        ========================================== */
-
-        .trip-card {
-
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 14px;
-            padding: 18px 20px;
-            margin-bottom: 12px;
-            background: var(--sand);
-            border: 1.5px solid var(--sand-dim);
-            border-radius: var(--radius-md);
-            cursor: pointer;
-            transition: border-color .15s ease, background .15s ease;
-
-        }
-
-
-        .trip-card:hover {
-
-            border-color: var(--teal);
-            background: var(--teal-tint);
-
-        }
-
-
-        .trip-card-name {
-
-            font-family: 'Fraunces', serif;
-            font-size: 1.15rem;
-            font-weight: 600;
-            margin-bottom: 6px;
-
-        }
-
-
-        .trip-card-stats {
-
-            display: flex;
-            gap: 16px;
-            font-size: 0.85rem;
-            color: var(--ink-soft);
-            flex-wrap: wrap;
-
-        }
-
-
-        .trip-card-stats strong {
-
-            color: var(--ink);
-
-        }
-
-
-        .trip-card-actions {
-
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            align-items: flex-end;
-
-        }
-
-
         .delete-btn {
 
             background: transparent;
@@ -1197,72 +1130,13 @@
 
 
         <!-- ==========================================
-             TRIPS PAGE (landing page after login)
-        ========================================== -->
-
-        <div
-            id="trips-page"
-            class="page-section active"
-        >
-
-            <div class="card">
-
-                <h2>
-                    Start a New Trip
-                </h2>
-
-                <div class="input-group">
-                    <label>Trip / Place Name</label>
-                    <input
-                        type="text"
-                        id="trip-name"
-                        placeholder="e.g. Cox's Bazar, Sylhet, Bandarban"
-                    >
-                </div>
-
-                <button id="add-trip">
-                    Create Trip
-                </button>
-
-            </div>
-
-
-            <div class="card">
-
-                <h2>
-                    My Trips
-                </h2>
-
-                <div id="trips-list">
-
-                    <div class="empty-state">
-                        No trips yet. Create your first trip above.
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- ==========================================
              TOUR EXPENSE CONTENT
         ========================================== -->
 
         <div
             class="app-container"
             id="tour-expense-content"
-            style="display:none;"
         >
-
-
-            <div style="grid-column: 1 / -1;">
-                <button id="back-to-trips" class="back-button">
-                    ← Back to My Trips
-                </button>
-                <h2 id="current-trip-name" style="margin-bottom:10px;"></h2>
-            </div>
 
 
             <!-- LEFT SIDE -->
@@ -1812,8 +1686,6 @@
 
         let isLoginMode = true;
 
-        let currentTripId = null;
-
 
         // ==========================================
         // MENU
@@ -1864,11 +1736,6 @@
                 "tour-expense-content"
             );
 
-        const tripsPage =
-            document.getElementById(
-                "trips-page"
-            );
-
         const profilePage =
             document.getElementById(
                 "profile-page"
@@ -1891,29 +1758,6 @@
             );
 
 
-        // Tracks which main view (trips list or an open trip) to
-        // return to after visiting Profile / Personal Expenses.
-        let activeMainView = "trips";
-
-        function showMainView(view) {
-
-            if (view === "trip" && currentTripId) {
-
-                tripsPage.classList.remove("active");
-                tourExpenseContent.style.display = "grid";
-
-            } else {
-
-                tourExpenseContent.style.display = "none";
-                tripsPage.classList.add("active");
-
-            }
-
-            activeMainView = view;
-
-        }
-
-
         // ==========================================
         // PROFILE
         // ==========================================
@@ -1922,10 +1766,6 @@
 
             tourExpenseContent.style.display =
                 "none";
-
-            tripsPage.classList.remove(
-                "active"
-            );
 
             personalExpensesPage.classList.remove(
                 "active"
@@ -1991,7 +1831,8 @@
                     "active"
                 );
 
-                showMainView(activeMainView);
+                tourExpenseContent.style.display =
+                    "grid";
 
             }
         );
@@ -2007,10 +1848,6 @@
 
                 tourExpenseContent.style.display =
                     "none";
-
-                tripsPage.classList.remove(
-                    "active"
-                );
 
                 profilePage.classList.remove(
                     "active"
@@ -2038,7 +1875,8 @@
                     "active"
                 );
 
-                showMainView(activeMainView);
+                tourExpenseContent.style.display =
+                    "grid";
 
             }
         );
@@ -2374,7 +2212,7 @@
                         "block";
 
 
-                    loadTrips();
+                    loadData();
 
                 }
 
@@ -2415,217 +2253,6 @@
             };
 
         }
-
-
-        // ==========================================
-        // TRIPS
-        // ==========================================
-
-        const tripNameInput =
-            document.getElementById("trip-name");
-
-        const addTripButton =
-            document.getElementById("add-trip");
-
-        const tripsList =
-            document.getElementById("trips-list");
-
-        const backToTripsButton =
-            document.getElementById("back-to-trips");
-
-        const currentTripNameHeading =
-            document.getElementById("current-trip-name");
-
-
-        async function loadTrips() {
-
-            try {
-
-                const response = await fetch(
-                    `${API}/api/trips`,
-                    { headers: getAuthHeaders() }
-                );
-
-                if (response.status === 401 || response.status === 403) {
-                    logout();
-                    return;
-                }
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || "Failed to load trips");
-                }
-
-                renderTrips(data);
-
-            }
-
-            catch (error) {
-
-                console.error("Load trips error:", error);
-                alert("Failed to load trips");
-
-            }
-
-        }
-
-
-        function renderTrips(trips) {
-
-            if (trips.length === 0) {
-
-                tripsList.innerHTML = `
-                    <div class="empty-state">
-                        No trips yet. Create your first trip above.
-                    </div>
-                `;
-
-                return;
-
-            }
-
-            tripsList.innerHTML = "";
-
-            trips.forEach(trip => {
-
-                const mateCount = Number(trip.mate_count) || 0;
-                const totalCost = Number(trip.total_cost) || 0;
-                const perPersonCost = mateCount > 0 ? totalCost / mateCount : 0;
-
-                const div = document.createElement("div");
-                div.className = "trip-card";
-
-                div.innerHTML = `
-                    <div onclick="openTrip(${trip.id}, '${trip.name.replace(/'/g, "\\'")}')" style="flex:1;">
-                        <div class="trip-card-name">${trip.name}</div>
-                        <div class="trip-card-stats">
-                            <span>Mates: <strong>${mateCount}</strong></span>
-                            <span>Total: <strong>$${totalCost.toFixed(2)}</strong></span>
-                            <span>Per person: <strong>$${perPersonCost.toFixed(2)}</strong></span>
-                        </div>
-                    </div>
-                    <div class="trip-card-actions">
-                        <button class="delete-btn" onclick="event.stopPropagation(); deleteTrip(${trip.id})">Delete</button>
-                    </div>
-                `;
-
-                tripsList.appendChild(div);
-
-            });
-
-        }
-
-
-        async function createTripFunction() {
-
-            const name = tripNameInput.value.trim();
-
-            if (!name) {
-                alert("Please enter a trip / place name");
-                return;
-            }
-
-            try {
-
-                const response = await fetch(
-                    `${API}/api/trips`,
-                    {
-                        method: "POST",
-                        headers: getAuthHeaders(),
-                        body: JSON.stringify({ name: name })
-                    }
-                );
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    alert(data.error);
-                    return;
-                }
-
-                tripNameInput.value = "";
-
-                await loadTrips();
-
-            }
-
-            catch (error) {
-
-                console.error(error);
-                alert("Server connection failed!");
-
-            }
-
-        }
-
-
-        function openTrip(id, name) {
-
-            currentTripId = id;
-            activeMainView = "trip";
-
-            tripsPage.classList.remove("active");
-            tourExpenseContent.style.display = "grid";
-
-            currentTripNameHeading.textContent = name;
-
-            loadData();
-
-        }
-
-
-        async function deleteTrip(id) {
-
-            if (!confirm("Delete this trip? All its tour mates and expenses will be removed permanently.")) {
-                return;
-            }
-
-            try {
-
-                const response = await fetch(
-                    `${API}/api/trips/${id}`,
-                    {
-                        method: "DELETE",
-                        headers: getAuthHeaders()
-                    }
-                );
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    alert(data.error);
-                    return;
-                }
-
-                await loadTrips();
-
-            }
-
-            catch (error) {
-
-                console.error(error);
-                alert("Server connection failed!");
-
-            }
-
-        }
-
-
-        addTripButton.addEventListener("click", createTripFunction);
-
-
-        backToTripsButton.addEventListener("click", () => {
-
-            currentTripId = null;
-            activeMainView = "trips";
-
-            tourExpenseContent.style.display = "none";
-            tripsPage.classList.add("active");
-
-            loadTrips();
-
-        });
 
 
         // ==========================================
@@ -2731,7 +2358,7 @@
 
                 const matesResponse =
                     await fetch(
-                        `${API}/api/tourmates?trip_id=${currentTripId}`,
+                        `${API}/api/tourmates`,
                         {
                             headers:
                                 getAuthHeaders()
@@ -2741,7 +2368,7 @@
 
                 const expensesResponse =
                     await fetch(
-                        `${API}/api/expenses?trip_id=${currentTripId}`,
+                        `${API}/api/expenses`,
                         {
                             headers:
                                 getAuthHeaders()
@@ -2837,8 +2464,7 @@
 
                             body:
                                 JSON.stringify({
-                                    name: name,
-                                    trip_id: currentTripId
+                                    name: name
                                 })
 
                         }
@@ -3026,10 +2652,7 @@
                                         payerId,
 
                                     expense_date:
-                                        date,
-
-                                    trip_id:
-                                        currentTripId
+                                        date
 
                                 })
 
@@ -3719,7 +3342,7 @@
 
             if (
                 !confirm(
-                    "Are you sure?\n\nThis will delete ALL tour mates and expenses for THIS TRIP only. Other trips and personal expenses are not affected."
+                    "Are you sure?\n\nThis will delete ALL tour mates and ALL expenses from MySQL."
                 )
             ) {
 
@@ -3732,7 +3355,7 @@
 
                 const response =
                     await fetch(
-                        `${API}/api/reset?trip_id=${currentTripId}`,
+                        `${API}/api/reset`,
                         {
 
                             method:
@@ -4308,7 +3931,7 @@
                 "block";
 
 
-            loadTrips();
+            loadData();
 
         }
 
