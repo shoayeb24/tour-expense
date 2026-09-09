@@ -1981,122 +1981,54 @@
             );
 
 
-        // Cache of the user's trips (name lookup for deep-linked routes)
-        let tripsCache = [];
+        // Tracks which main view (trips list or an open trip) to
+        // return to after visiting Profile / Personal Expenses.
+        let activeMainView = "trips";
 
+        function showMainView(view) {
 
-        // ==========================================
-        // ROUTER (hash-based, gives real browser Back/Forward)
-        // Routes:
-        //   #/trips                -> My Trips list
-        //   #/trip/<id>             -> open trip's Tour Mates/Expenses
-        //   #/trip/<id>/personal    -> that trip's Personal Expenses
-        //   #/profile               -> Profile page
-        // ==========================================
+            if (view === "trip" && currentTripId) {
 
-        function navigateTo(hash) {
+                tripsPage.classList.remove("active");
+                tourExpenseContent.style.display = "grid";
 
-            if (window.location.hash === hash) {
-                handleRoute();
             } else {
-                window.location.hash = hash;
-            }
 
-        }
-
-
-        function hideAllMainPages() {
-
-            tripsPage.classList.remove("active");
-            tourExpenseContent.style.display = "none";
-            profilePage.classList.remove("active");
-            personalExpensesPage.classList.remove("active");
-
-        }
-
-
-        async function ensureTripName(tripId) {
-
-            let trip = tripsCache.find(t => Number(t.id) === tripId);
-
-            if (!trip) {
-                await loadTrips();
-                trip = tripsCache.find(t => Number(t.id) === tripId);
-            }
-
-            currentTripNameHeading.textContent = trip ? trip.name : "";
-
-        }
-
-
-        async function handleRoute() {
-
-            const hash = window.location.hash || "#/trips";
-            const parts = hash.replace(/^#\/?/, "").split("/").filter(Boolean);
-
-            menuDropdown.classList.remove("show");
-            hideAllMainPages();
-
-            // ---- PROFILE ----
-            if (parts[0] === "profile") {
-
-                fillProfileData();
-                profilePage.classList.add("active");
-                return;
+                tourExpenseContent.style.display = "none";
+                tripsPage.classList.add("active");
 
             }
 
-            // ---- OPEN TRIP (and its Personal Expenses) ----
-            if (parts[0] === "trip" && parts[1]) {
-
-                const tripId = Number(parts[1]);
-                currentTripId = tripId;
-
-                await ensureTripName(tripId);
-
-                if (parts[2] === "personal") {
-
-                    personalExpensesPage.classList.add("active");
-
-                    const heading =
-                        document.getElementById("personal-expenses-trip-name");
-
-                    if (heading) {
-                        heading.textContent =
-                            currentTripNameHeading.textContent
-                                ? `for ${currentTripNameHeading.textContent}`
-                                : "";
-                    }
-
-                    loadPersonalExpenses();
-
-                } else {
-
-                    tourExpenseContent.style.display = "grid";
-                    loadData();
-
-                }
-
-                return;
-
-            }
-
-            // ---- DEFAULT: TRIPS LIST ----
-            currentTripId = null;
-            tripsPage.classList.add("active");
-            loadTrips();
+            activeMainView = view;
 
         }
-
-
-        window.addEventListener("hashchange", handleRoute);
 
 
         // ==========================================
         // PROFILE
         // ==========================================
 
-        function fillProfileData() {
+        function showProfile() {
+
+            tourExpenseContent.style.display =
+                "none";
+
+            tripsPage.classList.remove(
+                "active"
+            );
+
+            personalExpensesPage.classList.remove(
+                "active"
+            );
+
+            profilePage.classList.add(
+                "active"
+            );
+
+            menuDropdown.classList.remove(
+                "show"
+            );
+
 
             const savedUser =
                 localStorage.getItem(
@@ -2137,13 +2069,21 @@
 
         profileButton.addEventListener(
             "click",
-            () => navigateTo("#/profile")
+            showProfile
         );
 
 
         backFromProfile.addEventListener(
             "click",
-            () => history.back()
+            () => {
+
+                profilePage.classList.remove(
+                    "active"
+                );
+
+                showMainView(activeMainView);
+
+            }
         );
 
 
@@ -2169,7 +2109,36 @@
 
                 }
 
-                navigateTo(`#/trip/${currentTripId}/personal`);
+                tourExpenseContent.style.display =
+                    "none";
+
+                tripsPage.classList.remove(
+                    "active"
+                );
+
+                profilePage.classList.remove(
+                    "active"
+                );
+
+                personalExpensesPage.classList.add(
+                    "active"
+                );
+
+                const heading =
+                    document.getElementById(
+                        "personal-expenses-trip-name"
+                    );
+
+                if (heading) {
+
+                    heading.textContent =
+                        currentTripNameHeading.textContent
+                            ? `for ${currentTripNameHeading.textContent}`
+                            : "";
+
+                }
+
+                loadPersonalExpenses();
 
             }
         );
@@ -2177,7 +2146,15 @@
 
         backToTour.addEventListener(
             "click",
-            () => history.back()
+            () => {
+
+                personalExpensesPage.classList.remove(
+                    "active"
+                );
+
+                showMainView(activeMainView);
+
+            }
         );
 
 
@@ -2194,8 +2171,6 @@
             localStorage.removeItem(
                 "tourExpenseUser"
             );
-
-            window.location.hash = "";
 
             location.reload();
 
@@ -2513,7 +2488,7 @@
                         "block";
 
 
-                    navigateTo("#/trips");
+                    loadTrips();
 
                 }
 
@@ -2597,7 +2572,6 @@
                 }
 
                 renderTrips(data);
-                tripsCache = data;
 
             }
 
@@ -2637,7 +2611,7 @@
                 div.className = "trip-card";
 
                 div.innerHTML = `
-                    <div onclick="navigateTo('#/trip/${trip.id}')" style="flex:1;">
+                    <div onclick="openTrip(${trip.id}, '${trip.name.replace(/'/g, "\\'")}')" style="flex:1;">
                         <div class="trip-card-name">${trip.name}</div>
                         <div class="trip-card-stats">
                             <span>Mates: <strong>${mateCount}</strong></span>
@@ -2700,6 +2674,21 @@
         }
 
 
+        function openTrip(id, name) {
+
+            currentTripId = id;
+            activeMainView = "trip";
+
+            tripsPage.classList.remove("active");
+            tourExpenseContent.style.display = "grid";
+
+            currentTripNameHeading.textContent = name;
+
+            loadData();
+
+        }
+
+
         async function deleteTrip(id) {
 
             if (!confirm("Delete this trip? All its tour mates and expenses will be removed permanently.")) {
@@ -2742,7 +2731,13 @@
 
         backToTripsButton.addEventListener("click", () => {
 
-            navigateTo("#/trips");
+            currentTripId = null;
+            activeMainView = "trips";
+
+            tourExpenseContent.style.display = "none";
+            tripsPage.classList.add("active");
+
+            loadTrips();
 
         });
 
@@ -4614,7 +4609,7 @@
                 "block";
 
 
-            handleRoute();
+            loadTrips();
 
         }
 
