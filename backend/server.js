@@ -1,3 +1,4 @@
+
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
@@ -980,6 +981,12 @@ app.get(
     authenticateToken,
     (req, res) => {
 
+        const tripId = req.query.trip_id;
+
+        if (!tripId) {
+            return res.status(400).json({ error: "trip_id is required" });
+        }
+
         const sql = `
 
             SELECT *
@@ -987,6 +994,7 @@ app.get(
             FROM tour_mates
 
             WHERE user_id = ?
+            AND trip_id = ?
 
             ORDER BY id ASC
 
@@ -995,7 +1003,7 @@ app.get(
 
         db.query(
             sql,
-            [req.user.id],
+            [req.user.id, tripId],
             (err, results) => {
 
                 if (err) {
@@ -1033,7 +1041,7 @@ app.post(
     authenticateToken,
     (req, res) => {
 
-        const { name } = req.body;
+        const { name, trip_id } = req.body;
 
         const userId =
             req.user.id;
@@ -1054,16 +1062,29 @@ app.post(
         }
 
 
+        if (!trip_id) {
+
+            return res.status(400).json({
+
+                error:
+                    "trip_id is required"
+
+            });
+
+        }
+
+
         const sql = `
 
             INSERT INTO tour_mates
 
             (
                 name,
-                user_id
+                user_id,
+                trip_id
             )
 
-            VALUES (?, ?)
+            VALUES (?, ?, ?)
 
         `;
 
@@ -1074,7 +1095,8 @@ app.post(
 
             [
                 name.trim(),
-                userId
+                userId,
+                trip_id
             ],
 
             (err, result) => {
@@ -1259,6 +1281,12 @@ app.get(
     authenticateToken,
     (req, res) => {
 
+        const tripId = req.query.trip_id;
+
+        if (!tripId) {
+            return res.status(400).json({ error: "trip_id is required" });
+        }
+
         const sql = `
 
             SELECT
@@ -1282,6 +1310,7 @@ app.get(
                tour_mates.id
 
             WHERE expenses.user_id = ?
+            AND expenses.trip_id = ?
 
             ORDER BY expenses.id ASC
 
@@ -1292,7 +1321,7 @@ app.get(
 
             sql,
 
-            [req.user.id],
+            [req.user.id, tripId],
 
             (err, results) => {
 
@@ -1339,7 +1368,8 @@ app.post(
             description,
             amount,
             payerId,
-            expense_date
+            expense_date,
+            trip_id
         } = req.body;
 
 
@@ -1366,6 +1396,18 @@ app.post(
         }
 
 
+        if (!trip_id) {
+
+            return res.status(400).json({
+
+                error:
+                    "trip_id is required"
+
+            });
+
+        }
+
+
         const finalDate =
             expense_date ||
             new Date().toISOString().split("T")[0];
@@ -1381,6 +1423,8 @@ app.post(
 
             AND user_id = ?
 
+            AND trip_id = ?
+
         `;
 
 
@@ -1390,7 +1434,8 @@ app.post(
 
             [
                 payerId,
-                userId
+                userId,
+                trip_id
             ],
 
             (err, results) => {
@@ -1438,10 +1483,11 @@ app.post(
                         amount,
                         payer_id,
                         user_id,
-                        expense_date
+                        expense_date,
+                        trip_id
                     )
 
-                    VALUES (?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?)
 
                 `;
 
@@ -1455,7 +1501,8 @@ app.post(
                         Number(amount),
                         payerId,
                         userId,
-                        finalDate
+                        finalDate,
+                        trip_id
                     ],
 
                     (err, result) => {
@@ -1931,12 +1978,17 @@ app.delete(
     authenticateToken,
     (req, res) => {
 
-        const userId =
-            req.user.id;
+        const userId = req.user.id;
+        const tripId = req.query.trip_id;
 
+        if (!tripId) {
+            return res.status(400).json({ error: "trip_id is required" });
+        }
 
         console.log(
-            "Resetting all data for user:",
+            "Resetting data for trip:",
+            tripId,
+            "user:",
             userId
         );
 
@@ -1946,6 +1998,7 @@ app.delete(
             DELETE FROM expenses
 
             WHERE user_id = ?
+            AND trip_id = ?
 
         `;
 
@@ -1954,7 +2007,7 @@ app.delete(
 
             deleteExpenses,
 
-            [userId],
+            [userId, tripId],
 
             (err) => {
 
@@ -1978,34 +2031,35 @@ app.delete(
                 }
 
 
-                const deletePersonalExpenses = `
+                const deleteMates = `
 
-                    DELETE FROM personal_expenses
+                    DELETE FROM tour_mates
 
                     WHERE user_id = ?
+                    AND trip_id = ?
 
                 `;
 
 
                 db.query(
 
-                    deletePersonalExpenses,
+                    deleteMates,
 
-                    [userId],
+                    [userId, tripId],
 
                     (err) => {
 
                         if (err) {
 
                             console.error(
-                                "Reset personal expenses error:",
+                                "Reset mates error:",
                                 err.message
                             );
 
                             return res.status(500).json({
 
                                 error:
-                                    "Failed to delete personal expenses",
+                                    "Failed to delete tour mates",
 
                                 details:
                                     err.message
@@ -2015,59 +2069,18 @@ app.delete(
                         }
 
 
-                        const deleteMates = `
-
-                            DELETE FROM tour_mates
-
-                            WHERE user_id = ?
-
-                        `;
-
-
-                        db.query(
-
-                            deleteMates,
-
-                            [userId],
-
-                            (err) => {
-
-                                if (err) {
-
-                                    console.error(
-                                        "Reset mates error:",
-                                        err.message
-                                    );
-
-                                    return res.status(500).json({
-
-                                        error:
-                                            "Failed to delete tour mates",
-
-                                        details:
-                                            err.message
-
-                                    });
-
-                                }
-
-
-                                console.log(
-                                    "All user data reset:",
-                                    userId
-                                );
-
-
-                                res.json({
-
-                                    message:
-                                        "Your tour mates, tour expenses and personal expenses have been deleted successfully"
-
-                                });
-
-                            }
-
+                        console.log(
+                            "Trip data reset:",
+                            tripId
                         );
+
+
+                        res.json({
+
+                            message:
+                                "This trip's tour mates and expenses have been deleted successfully"
+
+                        });
 
                     }
 
@@ -2102,3 +2115,4 @@ app.listen(
     }
 
 );
+
