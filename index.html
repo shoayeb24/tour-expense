@@ -3995,19 +3995,12 @@
                             headers:
                                 getAuthHeaders(),
 
-                            body:
-                                JSON.stringify({
-
-                                    description:
-                                        description,
-
-                                    amount:
-                                        amount,
-
-                                    expense_date:
-                                        date
-
-                                })
+                            body: JSON.stringify({
+    description: description,
+    amount: amount,
+    expense_date: date,
+    trip_id: currentTripId
+})
 
                         }
                     );
