@@ -1227,6 +1227,27 @@
             </div>
 
 
+            <!-- OTP VERIFICATION -->
+
+            <div
+                id="otp-group"
+                class="input-group"
+                style="display:none;"
+            >
+
+                <label>Verification Code</label>
+
+                <input
+                    type="text"
+                    id="otp-code"
+                    placeholder="Enter 6-digit code"
+                    maxlength="6"
+                    inputmode="numeric"
+                >
+
+            </div>
+
+
             <!-- BUTTON -->
 
             <button
@@ -1235,6 +1256,34 @@
             >
                 Login
             </button>
+
+
+            <!-- RESEND OTP -->
+
+            <p
+                id="resend-wrap"
+                style="
+                    display:none;
+                    text-align:center;
+                    margin-top:14px;
+                    font-size:0.88rem;
+                    color:var(--ink-soft);
+                "
+            >
+                Didn't get a code?
+                <button
+                    id="resend-otp"
+                    style="
+                        background:none;
+                        color:var(--teal);
+                        padding:0;
+                        margin-left:4px;
+                        font-weight:700;
+                    "
+                >
+                    Resend
+                </button>
+            </p>
 
 
             <!-- ERROR -->
@@ -1253,6 +1302,7 @@
             <!-- SWITCH -->
 
             <p
+                id="auth-switch-wrap"
                 style="
                     text-align:center;
                     margin-top:22px;
@@ -1277,6 +1327,7 @@
                 >
                     Sign Up
                 </button>
+
 
             </p>
 
@@ -1980,8 +2031,27 @@
         const authSwitchText =
             document.getElementById("auth-switch-text");
 
+        const authSwitchWrap =
+            document.getElementById("auth-switch-wrap");
+
+        const otpGroup =
+            document.getElementById("otp-group");
+
+        const otpCodeInput =
+            document.getElementById("otp-code");
+
+        const resendWrap =
+            document.getElementById("resend-wrap");
+
+        const resendOtpButton =
+            document.getElementById("resend-otp");
+
 
         let isLoginMode = true;
+
+        let awaitingOtp = false;
+
+        let pendingSignup = null;
 
         let currentTripId = null;
 
@@ -2333,9 +2403,130 @@
         // SWITCH LOGIN / SIGNUP
         // ==========================================
 
+        // ==========================================
+        // OTP STEP HELPERS
+        // ==========================================
+
+        function enterOtpStep(email) {
+
+            awaitingOtp = true;
+
+            authTitle.textContent = "Verify your email";
+
+            signupNameGroup.style.display = "none";
+            signupNumberGroup.style.display = "none";
+            authEmail.closest(".input-group").style.display = "none";
+            authPassword.closest(".input-group").style.display = "none";
+
+            otpGroup.style.display = "block";
+            resendWrap.style.display = "block";
+            authSwitchWrap.style.display = "none";
+
+            authButton.textContent = "Verify & Create Account";
+
+            authMessage.style.color = "var(--teal-deep)";
+            authMessage.textContent = `We sent a 6-digit code to ${email}`;
+
+            otpCodeInput.value = "";
+            otpCodeInput.focus();
+
+        }
+
+
+        function exitOtpStep() {
+
+            awaitingOtp = false;
+            pendingSignup = null;
+
+            otpGroup.style.display = "none";
+            resendWrap.style.display = "none";
+            authSwitchWrap.style.display = "block";
+
+            authEmail.closest(".input-group").style.display = "block";
+            authPassword.closest(".input-group").style.display = "block";
+
+            authMessage.style.color = "var(--danger)";
+            authMessage.textContent = "";
+
+        }
+
+
+        function resetAuthToLogin() {
+
+            exitOtpStep();
+
+            isLoginMode = true;
+
+            authTitle.textContent = "Login";
+
+            signupNameGroup.style.display = "none";
+            signupNumberGroup.style.display = "none";
+
+            authButton.textContent = "Login";
+
+            authSwitchText.textContent = "Don't have an account?";
+            authSwitch.textContent = "Sign Up";
+
+            signupName.value = "";
+            signupNumber.value = "";
+            authEmail.value = "";
+            authPassword.value = "";
+
+        }
+
+
+        resendOtpButton.addEventListener(
+            "click",
+            async () => {
+
+                if (!pendingSignup) return;
+
+                resendOtpButton.disabled = true;
+                resendOtpButton.textContent = "Sending...";
+
+                try {
+
+                    const response = await fetch(
+                        `${API}/api/signup/request`,
+                        {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(pendingSignup)
+                        }
+                    );
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        authMessage.style.color = "var(--danger)";
+                        authMessage.textContent = data.error || "Failed to resend code.";
+                    } else {
+                        authMessage.style.color = "var(--teal-deep)";
+                        authMessage.textContent = `A new code was sent to ${pendingSignup.email}`;
+                    }
+
+                }
+
+                catch (error) {
+
+                    console.error(error);
+                    authMessage.style.color = "var(--danger)";
+                    authMessage.textContent = "Server connection failed.";
+
+                }
+
+                resendOtpButton.disabled = false;
+                resendOtpButton.textContent = "Resend";
+
+            }
+        );
+
+
         authSwitch.addEventListener(
             "click",
             () => {
+
+                exitOtpStep();
 
                 isLoginMode =
                     !isLoginMode;
@@ -2415,7 +2606,89 @@
 
 
                 // ======================================
-                // SIGNUP
+                // SIGNUP (step 2: verify OTP)
+                // ======================================
+
+                if (!isLoginMode && awaitingOtp) {
+
+                    const code = otpCodeInput.value.trim();
+
+                    if (!code) {
+
+                        authMessage.textContent =
+                            "Please enter the code we emailed you.";
+
+                        return;
+
+                    }
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                `${API}/api/signup/verify`,
+                                {
+
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body:
+                                        JSON.stringify({
+                                            email: pendingSignup.email,
+                                            code: code
+                                        })
+
+                                }
+                            );
+
+
+                        const data =
+                            await response.json();
+
+
+                        if (!response.ok) {
+
+                            authMessage.textContent =
+                                data.error ||
+                                "Verification failed.";
+
+                            return;
+
+                        }
+
+
+                        alert(
+                            "Account verified and created successfully!\n\nNow login."
+                        );
+
+
+                        resetAuthToLogin();
+
+                    }
+
+
+                    catch (error) {
+
+                        console.error(error);
+
+                        authMessage.textContent =
+                            "Server connection failed.";
+
+                    }
+
+
+                    return;
+
+                }
+
+
+                // ======================================
+                // SIGNUP (step 1: request OTP)
                 // ======================================
 
                 if (!isLoginMode) {
@@ -2461,7 +2734,7 @@
 
                         const response =
                             await fetch(
-                                `${API}/api/signup`,
+                                `${API}/api/signup/request`,
                                 {
 
                                     method: "POST",
@@ -2507,38 +2780,9 @@
                         }
 
 
-                        alert(
-                            "Account created successfully!\n\nNow login."
-                        );
+                        pendingSignup = { email, name, number, password };
 
-
-                        isLoginMode = true;
-
-
-                        authTitle.textContent =
-                            "Login";
-
-                        signupNameGroup.style.display =
-                            "none";
-
-                        signupNumberGroup.style.display =
-                            "none";
-
-                        authButton.textContent =
-                            "Login";
-
-                        authSwitchText.textContent =
-                            "Don't have an account?";
-
-                        authSwitch.textContent =
-                            "Sign Up";
-
-
-                        signupName.value = "";
-
-                        signupNumber.value = "";
-
-                        authPassword.value = "";
+                        enterOtpStep(email);
 
                     }
 

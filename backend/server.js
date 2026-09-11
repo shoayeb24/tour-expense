@@ -4,6 +4,7 @@ const mysql = require("mysql2");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 
 const app = express();
 
@@ -15,6 +16,51 @@ console.log("TOUR EXPENSE SERVER STARTING...");
 
 app.use(cors());
 app.use(express.json());
+
+
+// ==================================================
+// EMAIL (Gmail SMTP via Nodemailer)
+// ==================================================
+
+const mailTransporter = nodemailer.createTransport({
+
+    service: "gmail",
+
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    }
+
+});
+
+
+function sendOtpEmail(toEmail, name, code) {
+
+    return mailTransporter.sendMail({
+
+        from: `"Tour Expense Calculator" <${process.env.EMAIL_USER}>`,
+
+        to: toEmail,
+
+        subject: `Your verification code: ${code}`,
+
+        html: `
+            <div style="font-family:sans-serif; max-width:420px; margin:auto;">
+                <h2 style="color:#0F6E56;">Verify your email</h2>
+                <p>Hi ${name || ""},</p>
+                <p>Your verification code for Tour Expense Calculator is:</p>
+                <div style="font-size:32px; font-weight:bold; letter-spacing:6px; background:#F1E9D8; padding:16px; text-align:center; border-radius:8px; color:#0A4F3E;">
+                    ${code}
+                </div>
+                <p style="color:#777; font-size:13px; margin-top:16px;">
+                    This code expires in 10 minutes. If you didn't request this, you can ignore this email.
+                </p>
+            </div>
+        `
+
+    });
+
+}
 
 
 // ==================================================
@@ -42,7 +88,6 @@ const db = mysql.createPool({
     connectionLimit: 10,
 
     queueLimit: 0,
-
     dateStrings: true,
 
     ssl: {
@@ -117,6 +162,43 @@ function createTables() {
         }
 
         console.log("users table ready.");
+
+
+        // ==================================================
+        // PENDING SIGNUPS (email OTP verification)
+        // ==================================================
+
+        const createPendingSignups = `
+
+            CREATE TABLE IF NOT EXISTS pending_signups (
+
+                email VARCHAR(255) PRIMARY KEY,
+
+                name VARCHAR(255) NOT NULL,
+
+                number VARCHAR(30),
+
+                password VARCHAR(255) NOT NULL,
+
+                otp_code VARCHAR(6) NOT NULL,
+
+                expires_at TIMESTAMP NOT NULL
+
+            )
+
+        `;
+
+
+        db.query(createPendingSignups, (err) => {
+
+            if (err) {
+                console.error("Failed to create pending_signups table:", err.message);
+                return;
+            }
+
+            console.log("pending_signups table ready.");
+
+        });
 
 
         // ==================================================
@@ -372,10 +454,10 @@ app.get("/", (req, res) => {
 
 
 // ==================================================
-// SIGN UP
+// SIGN UP - STEP 1: REQUEST (send OTP code by email)
 // ==================================================
 
-app.post("/api/signup", async (req, res) => {
+app.post("/api/signup/request", async (req, res) => {
 
     const {
         name,
@@ -455,47 +537,69 @@ app.post("/api/signup", async (req, res) => {
                         10
                     );
 
+                const otpCode =
+                    String(
+                        Math.floor(100000 + Math.random() * 900000)
+                    );
 
-                const sql = `
+                const expiresAt =
+                    new Date(
+                        Date.now() + 10 * 60 * 1000
+                    );
 
-                    INSERT INTO users
+
+                const upsertSql = `
+
+                    INSERT INTO pending_signups
 
                     (
-                        name,
                         email,
+                        name,
                         number,
-                        password
+                        password,
+                        otp_code,
+                        expires_at
                     )
 
-                    VALUES (?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?)
+
+                    ON DUPLICATE KEY UPDATE
+
+                        name = VALUES(name),
+                        number = VALUES(number),
+                        password = VALUES(password),
+                        otp_code = VALUES(otp_code),
+                        expires_at = VALUES(expires_at)
 
                 `;
 
 
                 db.query(
 
-                    sql,
+                    upsertSql,
 
                     [
-                        name.trim(),
                         email.trim(),
+                        name.trim(),
                         number.trim(),
-                        hashedPassword
+                        hashedPassword,
+                        otpCode,
+                        expiresAt
                     ],
 
-                    (err, result) => {
+                    async (err) => {
 
                         if (err) {
 
                             console.error(
-                                "Signup insert error:",
+                                "Pending signup insert error:",
                                 err.message
                             );
 
                             return res.status(500).json({
 
                                 error:
-                                    "Failed to create account",
+                                    "Failed to start signup",
 
                                 details:
                                     err.message
@@ -505,26 +609,37 @@ app.post("/api/signup", async (req, res) => {
                         }
 
 
-                        res.status(201).json({
+                        try {
+
+                            await sendOtpEmail(
+                                email.trim(),
+                                name.trim(),
+                                otpCode
+                            );
+
+                        }
+
+                        catch (mailError) {
+
+                            console.error(
+                                "OTP email send error:",
+                                mailError.message
+                            );
+
+                            return res.status(500).json({
+
+                                error:
+                                    "Failed to send verification email"
+
+                            });
+
+                        }
+
+
+                        res.status(200).json({
 
                             message:
-                                "Account created successfully",
-
-                            user: {
-
-                                id:
-                                    result.insertId,
-
-                                name:
-                                    name.trim(),
-
-                                email:
-                                    email.trim(),
-
-                                number:
-                                    number.trim()
-
-                            }
+                                "Verification code sent to your email"
 
                         });
 
@@ -544,11 +659,202 @@ app.post("/api/signup", async (req, res) => {
                 return res.status(500).json({
 
                     error:
-                        "Failed to create account"
+                        "Failed to start signup"
 
                 });
 
             }
+
+        }
+
+    );
+
+});
+
+
+// ==================================================
+// SIGN UP - STEP 2: VERIFY (check OTP, create account)
+// ==================================================
+
+app.post("/api/signup/verify", (req, res) => {
+
+    const { email, code } = req.body;
+
+    if (!email || !code) {
+
+        return res.status(400).json({
+
+            error:
+                "Email and code are required"
+
+        });
+
+    }
+
+
+    const findSql = `
+
+        SELECT *
+
+        FROM pending_signups
+
+        WHERE email = ?
+
+    `;
+
+
+    db.query(
+
+        findSql,
+
+        [email.trim()],
+
+        (err, results) => {
+
+            if (err) {
+
+                console.error(
+                    "Verify lookup error:",
+                    err.message
+                );
+
+                return res.status(500).json({
+
+                    error:
+                        "Database error"
+
+                });
+
+            }
+
+
+            if (results.length === 0) {
+
+                return res.status(400).json({
+
+                    error:
+                        "No signup in progress for this email. Please sign up again."
+
+                });
+
+            }
+
+
+            const pending = results[0];
+
+
+            if (
+                new Date(pending.expires_at).getTime() < Date.now()
+            ) {
+
+                return res.status(400).json({
+
+                    error:
+                        "Code expired. Please request a new one."
+
+                });
+
+            }
+
+
+            if (
+                String(pending.otp_code) !== String(code).trim()
+            ) {
+
+                return res.status(400).json({
+
+                    error:
+                        "Invalid code"
+
+                });
+
+            }
+
+
+            const insertSql = `
+
+                INSERT INTO users
+
+                (
+                    name,
+                    email,
+                    number,
+                    password
+                )
+
+                VALUES (?, ?, ?, ?)
+
+            `;
+
+
+            db.query(
+
+                insertSql,
+
+                [
+                    pending.name,
+                    pending.email,
+                    pending.number,
+                    pending.password
+                ],
+
+                (err, result) => {
+
+                    if (err) {
+
+                        console.error(
+                            "Verify insert error:",
+                            err.message
+                        );
+
+                        return res.status(500).json({
+
+                            error:
+                                "Failed to create account",
+
+                            details:
+                                err.message
+
+                        });
+
+                    }
+
+
+                    db.query(
+
+                        `DELETE FROM pending_signups WHERE email = ?`,
+
+                        [pending.email]
+
+                    );
+
+
+                    res.status(201).json({
+
+                        message:
+                            "Account created successfully",
+
+                        user: {
+
+                            id:
+                                result.insertId,
+
+                            name:
+                                pending.name,
+
+                            email:
+                                pending.email,
+
+                            number:
+                                pending.number
+
+                        }
+
+                    });
+
+                }
+
+            );
 
         }
 
