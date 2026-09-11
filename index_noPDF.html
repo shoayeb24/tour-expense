@@ -82,122 +82,75 @@
             position: relative;
             max-width: 1180px;
             margin: auto;
-            padding: 0 20px 60px;
+            padding: 28px 20px 60px;
 
         }
 
 
         /* ==========================================
-           TOP BAR
+           HEADER
         ========================================== */
 
-        .topbar {
+        header {
 
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            padding: 14px 4px;
-            margin: 0 -20px 28px;
-            padding-left: 20px;
-            padding-right: 20px;
-            background: rgba(251, 246, 236, 0.92);
-            backdrop-filter: blur(8px);
-            border-bottom: 1px solid var(--sand-dim);
-
-        }
-
-
-        .topbar-left {
-
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            min-width: 0;
-
-        }
-
-
-        .topbar-logo {
-
-            width: 36px;
-            height: 36px;
-            min-width: 36px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, var(--teal), var(--teal-deep));
+            position: relative;
+            text-align: center;
+            margin-bottom: 32px;
+            padding: 46px 32px 42px;
+            background: linear-gradient(135deg, var(--teal) 0%, var(--teal-deep) 100%);
             color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Fraunces', serif;
-            font-weight: 700;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+
+        }
+
+
+        header::after {
+
+            content: "";
+            position: absolute;
+            right: -40px;
+            bottom: -60px;
+            width: 220px;
+            height: 220px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.07);
+
+        }
+
+
+        header::before {
+
+            content: "";
+            position: absolute;
+            left: -50px;
+            top: -70px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+
+        }
+
+
+        h1 {
+
+            font-size: 3rem;
+            color: #fff;
+            letter-spacing: -0.02em;
+            position: relative;
+            z-index: 1;
+
+        }
+
+
+        .description {
+
+            margin-top: 10px;
+            color: rgba(255,255,255,0.85);
             font-size: 1.05rem;
-
-        }
-
-
-        .breadcrumb {
-
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.95rem;
-            min-width: 0;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-
-        }
-
-
-        .breadcrumb-sep {
-
-            color: var(--ink-soft);
-            opacity: 0.5;
-
-        }
-
-
-        .breadcrumb-item {
-
-            color: var(--ink-soft);
-            font-weight: 500;
-            cursor: pointer;
-
-        }
-
-
-        .breadcrumb-item:hover {
-
-            color: var(--teal-deep);
-            text-decoration: underline;
-
-        }
-
-
-        .breadcrumb-current {
-
-            color: var(--ink);
-            font-weight: 600;
-            overflow: hidden;
-            text-overflow: ellipsis;
-
-        }
-
-
-        @media(max-width:600px) {
-
-            .topbar {
-                padding-left: 16px;
-                padding-right: 16px;
-            }
-
-            .breadcrumb {
-                font-size: 0.85rem;
-            }
+            position: relative;
+            z-index: 1;
 
         }
 
@@ -220,6 +173,18 @@
             .app-container {
 
                 grid-template-columns: 1fr;
+
+            }
+
+            header {
+
+                padding: 40px 20px 34px;
+
+            }
+
+            h1 {
+
+                font-size: 2.1rem;
 
             }
 
@@ -440,13 +405,13 @@
             justify-content: space-between;
             align-items: center;
             gap: 14px;
-            padding: 16px 18px;
-            margin-bottom: 10px;
-            background: var(--paper);
+            padding: 18px 20px;
+            margin-bottom: 12px;
+            background: var(--sand);
             border: 1.5px solid var(--sand-dim);
             border-radius: var(--radius-md);
             cursor: pointer;
-            transition: border-color .15s ease, box-shadow .15s ease;
+            transition: border-color .15s ease, background .15s ease;
 
         }
 
@@ -454,35 +419,7 @@
         .trip-card:hover {
 
             border-color: var(--teal);
-            box-shadow: 0 4px 14px rgba(15,110,86,0.10);
-
-        }
-
-
-        .trip-card-main {
-
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            flex: 1;
-            min-width: 0;
-
-        }
-
-
-        .trip-card-badge {
-
-            width: 42px;
-            height: 42px;
-            min-width: 42px;
-            border-radius: 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Fraunces', serif;
-            font-weight: 700;
-            font-size: 1.05rem;
-            color: #fff;
+            background: var(--teal-tint);
 
         }
 
@@ -490,21 +427,9 @@
         .trip-card-name {
 
             font-family: 'Fraunces', serif;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 600;
-            margin-bottom: 4px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-
-        }
-
-
-        .trip-card-chevron {
-
-            color: var(--ink-soft);
-            font-size: 1.1rem;
-            opacity: 0.6;
+            margin-bottom: 6px;
 
         }
 
@@ -513,7 +438,7 @@
 
             display: flex;
             gap: 16px;
-            font-size: 0.83rem;
+            font-size: 0.85rem;
             color: var(--ink-soft);
             flex-wrap: wrap;
 
@@ -530,8 +455,9 @@
         .trip-card-actions {
 
             display: flex;
-            align-items: center;
-            gap: 10px;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
 
         }
 
@@ -775,30 +701,31 @@
 
         .menu-container {
 
-            position: relative;
+            position: absolute;
+            top: 28px;
+            left: 20px;
             z-index: 1000;
-            flex-shrink: 0;
 
         }
 
 
         .menu-button {
 
-            width: 40px;
-            height: 40px;
+            width: 46px;
+            height: 46px;
             padding: 0;
-            font-size: 19px;
-            background: var(--sand);
-            color: var(--ink);
+            font-size: 22px;
+            background: rgba(255,255,255,0.16);
+            color: #fff;
             border-radius: var(--radius-sm);
-            border: 1.5px solid var(--sand-dim);
+            border: 1px solid rgba(255,255,255,0.25);
 
         }
 
 
         .menu-button:hover {
 
-            background: var(--sand-dim);
+            background: rgba(255,255,255,0.26);
 
         }
 
@@ -807,15 +734,14 @@
 
             display: none;
             position: absolute;
-            top: 48px;
-            right: 0;
-            width: 230px;
+            top: 54px;
+            left: 0;
+            width: 200px;
             background: var(--paper);
             border-radius: var(--radius-md);
-            box-shadow: 0 16px 40px rgba(22,51,46,0.20);
-            padding: 6px;
+            box-shadow: 0 12px 30px rgba(22,51,46,0.18);
+            padding: 8px;
             border: 1px solid var(--sand-dim);
-            overflow: hidden;
 
         }
 
@@ -823,71 +749,6 @@
         .menu-dropdown.show {
 
             display: block;
-
-        }
-
-
-        .menu-item {
-
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            width: 100%;
-            text-align: left;
-            background: transparent;
-            color: var(--ink);
-            padding: 12px 12px;
-            margin-bottom: 2px;
-            font-weight: 500;
-            font-size: 0.93rem;
-            border-radius: var(--radius-sm);
-
-        }
-
-
-        .menu-item:hover {
-
-            background: var(--sand);
-
-        }
-
-
-        .menu-item .menu-icon {
-
-            width: 30px;
-            height: 30px;
-            min-width: 30px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 15px;
-            background: var(--teal-tint);
-            color: var(--teal-deep);
-
-        }
-
-
-        .menu-item.menu-item-danger .menu-icon {
-
-            background: var(--coral-tint);
-            color: var(--coral-deep);
-
-        }
-
-
-        .menu-item.menu-item-danger:hover {
-
-            background: var(--coral-tint);
-
-        }
-
-
-        .menu-divider {
-
-            height: 1px;
-            background: var(--sand-dim);
-            margin: 4px 6px;
 
         }
 
@@ -947,14 +808,6 @@
         .back-button:hover {
 
             background: var(--sand);
-
-        }
-
-
-        .page-title {
-
-            font-size: 2rem;
-            margin: 14px 0 20px;
 
         }
 
@@ -1296,56 +1149,51 @@
     >
 
 
-        <header class="topbar">
+        <!-- HAMBURGER MENU (kept outside header so its dropdown isn't clipped by header's rounded-corner overflow) -->
 
-            <div class="topbar-left">
+        <div class="menu-container">
 
-                <div class="topbar-logo">T</div>
+            <button
+                id="menu-button"
+                class="menu-button"
+            >
+                ☰
+            </button>
 
-                <nav class="breadcrumb" id="breadcrumb">
-                    <span class="breadcrumb-current">My Trips</span>
-                </nav>
 
-            </div>
+            <div
+                id="menu-dropdown"
+                class="menu-dropdown"
+            >
 
-            <div class="menu-container">
-
-                <button
-                    id="menu-button"
-                    class="menu-button"
-                >
-                    ☰
+                <button id="profile-button">
+                    Profile
                 </button>
 
+                <button id="personal-expenses-button">
+                    Personal Expenses
+                </button>
 
-                <div
-                    id="menu-dropdown"
-                    class="menu-dropdown"
-                >
-
-                    <button id="profile-button" class="menu-item">
-                        <span class="menu-icon">👤</span>
-                        Profile
-                    </button>
-
-                    <button id="personal-expenses-button" class="menu-item">
-                        <span class="menu-icon">🧾</span>
-                        Personal Expenses
-                    </button>
-
-                    <div class="menu-divider"></div>
-
-                    <button id="logout-button" class="menu-item menu-item-danger">
-                        <span class="menu-icon">⏻</span>
-                        Logout
-                    </button>
-
-                </div>
+                <button id="logout-button">
+                    Logout
+                </button>
 
             </div>
 
-        </header>
+        </div>
 
+
+        <header>
+
+            <h1>
+                Tour Expense Calculator
+            </h1>
+
+            <p class="description">
+                Track expenses and calculate who owes whom
+            </p>
+
+        </header>
 
 
         <!-- ==========================================
@@ -1411,9 +1259,9 @@
 
             <div style="grid-column: 1 / -1;">
                 <button id="back-to-trips" class="back-button">
-                    ← All Trips
+                    ← Back to My Trips
                 </button>
-                <h1 id="current-trip-name" class="page-title"></h1>
+                <h2 id="current-trip-name" style="margin-bottom:10px;"></h2>
             </div>
 
 
@@ -1692,14 +1540,6 @@
 
                     </div>
 
-
-                    <button
-                        id="download-trip-pdf"
-                        style="width:100%; margin-top:12px; background:var(--ink);"
-                    >
-                        ⬇ Download Trip PDF
-                    </button>
-
                 </div>
 
 
@@ -1805,7 +1645,6 @@
 
                 <h2>
                     Personal Expenses
-                    <span id="personal-expenses-trip-name" style="font-family:'Plus Jakarta Sans',sans-serif; font-size:0.9rem; color:var(--ink-soft); font-weight:500;"></span>
                 </h2>
 
                 <p
@@ -1911,14 +1750,6 @@
 
                 </div>
 
-
-                <button
-                    id="download-personal-pdf"
-                    style="width:100%; margin-top:14px; background:var(--ink); "
-                >
-                    ⬇ Download PDF
-                </button>
-
             </div>
 
         </div>
@@ -1926,8 +1757,6 @@
 
     </div>
 
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <script>
 
@@ -1937,7 +1766,7 @@
         // ==========================================
 
         const API =
-            "https://tour-expense-backend.onrender.com";
+    "https://tour-expense-backend.onrender.com";
 
 
         // ==========================================
@@ -2062,168 +1891,54 @@
             );
 
 
-        // Cache of the user's trips (name lookup for deep-linked routes)
-        let tripsCache = [];
+        // Tracks which main view (trips list or an open trip) to
+        // return to after visiting Profile / Personal Expenses.
+        let activeMainView = "trips";
 
+        function showMainView(view) {
 
-        // ==========================================
-        // ROUTER (hash-based, gives real browser Back/Forward)
-        // Routes:
-        //   #/trips                -> My Trips list
-        //   #/trip/<id>             -> open trip's Tour Mates/Expenses
-        //   #/trip/<id>/personal    -> that trip's Personal Expenses
-        //   #/profile               -> Profile page
-        // ==========================================
+            if (view === "trip" && currentTripId) {
 
-        function navigateTo(hash) {
+                tripsPage.classList.remove("active");
+                tourExpenseContent.style.display = "grid";
 
-            if (window.location.hash === hash) {
-                handleRoute();
             } else {
-                window.location.hash = hash;
-            }
 
-        }
-
-
-        function hideAllMainPages() {
-
-            tripsPage.classList.remove("active");
-            tourExpenseContent.style.display = "none";
-            profilePage.classList.remove("active");
-            personalExpensesPage.classList.remove("active");
-
-        }
-
-
-        async function ensureTripName(tripId) {
-
-            let trip = tripsCache.find(t => Number(t.id) === tripId);
-
-            if (!trip) {
-                await loadTrips();
-                trip = tripsCache.find(t => Number(t.id) === tripId);
-            }
-
-            currentTripNameHeading.textContent = trip ? trip.name : "";
-
-        }
-
-
-        function renderBreadcrumb(items) {
-
-            // items: array of { label, hash } - last item has no hash (current page)
-            const breadcrumb = document.getElementById("breadcrumb");
-
-            breadcrumb.innerHTML = items.map((item, i) => {
-
-                const isLast = i === items.length - 1;
-
-                if (isLast) {
-                    return `<span class="breadcrumb-current">${item.label}</span>`;
-                }
-
-                const sep = i > 0 ? `<span class="breadcrumb-sep">›</span>` : "";
-
-                return `${sep}<span class="breadcrumb-item" onclick="navigateTo('${item.hash}')">${item.label}</span>`;
-
-            }).join("");
-
-        }
-
-
-        async function handleRoute() {
-
-            const hash = window.location.hash || "#/trips";
-            const parts = hash.replace(/^#\/?/, "").split("/").filter(Boolean);
-
-            menuDropdown.classList.remove("show");
-            hideAllMainPages();
-
-            // ---- PROFILE ----
-            if (parts[0] === "profile") {
-
-                fillProfileData();
-                profilePage.classList.add("active");
-
-                renderBreadcrumb([
-                    { label: "My Trips", hash: "#/trips" },
-                    { label: "Profile" }
-                ]);
-
-                return;
+                tourExpenseContent.style.display = "none";
+                tripsPage.classList.add("active");
 
             }
 
-            // ---- OPEN TRIP (and its Personal Expenses) ----
-            if (parts[0] === "trip" && parts[1]) {
-
-                const tripId = Number(parts[1]);
-                currentTripId = tripId;
-
-                await ensureTripName(tripId);
-
-                const tripLabel = currentTripNameHeading.textContent || "Trip";
-
-                if (parts[2] === "personal") {
-
-                    personalExpensesPage.classList.add("active");
-
-                    const heading =
-                        document.getElementById("personal-expenses-trip-name");
-
-                    if (heading) {
-                        heading.textContent =
-                            currentTripNameHeading.textContent
-                                ? `for ${currentTripNameHeading.textContent}`
-                                : "";
-                    }
-
-                    loadPersonalExpenses();
-
-                    renderBreadcrumb([
-                        { label: "My Trips", hash: "#/trips" },
-                        { label: tripLabel, hash: `#/trip/${tripId}` },
-                        { label: "Personal Expenses" }
-                    ]);
-
-                } else {
-
-                    tourExpenseContent.style.display = "grid";
-                    loadData();
-
-                    renderBreadcrumb([
-                        { label: "My Trips", hash: "#/trips" },
-                        { label: tripLabel }
-                    ]);
-
-                }
-
-                return;
-
-            }
-
-            // ---- DEFAULT: TRIPS LIST ----
-            currentTripId = null;
-            tripsPage.classList.add("active");
-            loadTrips();
-
-            renderBreadcrumb([
-                { label: "My Trips" }
-            ]);
+            activeMainView = view;
 
         }
-
-
-        window.addEventListener("hashchange", handleRoute);
-        window.addEventListener("popstate", handleRoute);
 
 
         // ==========================================
         // PROFILE
         // ==========================================
 
-        function fillProfileData() {
+        function showProfile() {
+
+            tourExpenseContent.style.display =
+                "none";
+
+            tripsPage.classList.remove(
+                "active"
+            );
+
+            personalExpensesPage.classList.remove(
+                "active"
+            );
+
+            profilePage.classList.add(
+                "active"
+            );
+
+            menuDropdown.classList.remove(
+                "show"
+            );
+
 
             const savedUser =
                 localStorage.getItem(
@@ -2264,13 +1979,21 @@
 
         profileButton.addEventListener(
             "click",
-            () => navigateTo("#/profile")
+            showProfile
         );
 
 
         backFromProfile.addEventListener(
             "click",
-            () => history.back()
+            () => {
+
+                profilePage.classList.remove(
+                    "active"
+                );
+
+                showMainView(activeMainView);
+
+            }
         );
 
 
@@ -2282,21 +2005,26 @@
             "click",
             () => {
 
+                tourExpenseContent.style.display =
+                    "none";
+
+                tripsPage.classList.remove(
+                    "active"
+                );
+
+                profilePage.classList.remove(
+                    "active"
+                );
+
+                personalExpensesPage.classList.add(
+                    "active"
+                );
+
                 menuDropdown.classList.remove(
                     "show"
                 );
 
-                if (!currentTripId) {
-
-                    alert(
-                        "Please open a trip first, then add its Personal Expenses from inside that trip."
-                    );
-
-                    return;
-
-                }
-
-                navigateTo(`#/trip/${currentTripId}/personal`);
+                loadPersonalExpenses();
 
             }
         );
@@ -2304,7 +2032,15 @@
 
         backToTour.addEventListener(
             "click",
-            () => history.back()
+            () => {
+
+                personalExpensesPage.classList.remove(
+                    "active"
+                );
+
+                showMainView(activeMainView);
+
+            }
         );
 
 
@@ -2321,8 +2057,6 @@
             localStorage.removeItem(
                 "tourExpenseUser"
             );
-
-            window.location.hash = "";
 
             location.reload();
 
@@ -2640,7 +2374,7 @@
                         "block";
 
 
-                    navigateTo("#/trips");
+                    loadTrips();
 
                 }
 
@@ -2724,7 +2458,6 @@
                 }
 
                 renderTrips(data);
-                tripsCache = data;
 
             }
 
@@ -2744,7 +2477,7 @@
 
                 tripsList.innerHTML = `
                     <div class="empty-state">
-                        No trips yet — create your first one above and its Tour Mates, Expenses and Personal Expenses will live here.
+                        No trips yet. Create your first trip above.
                     </div>
                 `;
 
@@ -2754,34 +2487,26 @@
 
             tripsList.innerHTML = "";
 
-            const tints = ["tint-1","tint-2","tint-3","tint-4","tint-5","tint-6"];
-
-            trips.forEach((trip, idx) => {
+            trips.forEach(trip => {
 
                 const mateCount = Number(trip.mate_count) || 0;
                 const totalCost = Number(trip.total_cost) || 0;
                 const perPersonCost = mateCount > 0 ? totalCost / mateCount : 0;
-                const tint = tints[idx % tints.length];
 
                 const div = document.createElement("div");
                 div.className = "trip-card";
-                div.onclick = () => navigateTo(`#/trip/${trip.id}`);
 
                 div.innerHTML = `
-                    <div class="trip-card-main">
-                        <div class="trip-card-badge ${tint}">${trip.name.trim()[0].toUpperCase()}</div>
-                        <div style="min-width:0;">
-                            <div class="trip-card-name">${trip.name}</div>
-                            <div class="trip-card-stats">
-                                <span>Mates: <strong>${mateCount}</strong></span>
-                                <span>Total: <strong>$${totalCost.toFixed(2)}</strong></span>
-                                <span>Per person: <strong>$${perPersonCost.toFixed(2)}</strong></span>
-                            </div>
+                    <div onclick="openTrip(${trip.id}, '${trip.name.replace(/'/g, "\\'")}')" style="flex:1;">
+                        <div class="trip-card-name">${trip.name}</div>
+                        <div class="trip-card-stats">
+                            <span>Mates: <strong>${mateCount}</strong></span>
+                            <span>Total: <strong>$${totalCost.toFixed(2)}</strong></span>
+                            <span>Per person: <strong>$${perPersonCost.toFixed(2)}</strong></span>
                         </div>
                     </div>
                     <div class="trip-card-actions">
                         <button class="delete-btn" onclick="event.stopPropagation(); deleteTrip(${trip.id})">Delete</button>
-                        <span class="trip-card-chevron">›</span>
                     </div>
                 `;
 
@@ -2835,6 +2560,21 @@
         }
 
 
+        function openTrip(id, name) {
+
+            currentTripId = id;
+            activeMainView = "trip";
+
+            tripsPage.classList.remove("active");
+            tourExpenseContent.style.display = "grid";
+
+            currentTripNameHeading.textContent = name;
+
+            loadData();
+
+        }
+
+
         async function deleteTrip(id) {
 
             if (!confirm("Delete this trip? All its tour mates and expenses will be removed permanently.")) {
@@ -2877,7 +2617,13 @@
 
         backToTripsButton.addEventListener("click", () => {
 
-            navigateTo("#/trips");
+            currentTripId = null;
+            activeMainView = "trips";
+
+            tourExpenseContent.style.display = "none";
+            tripsPage.classList.add("active");
+
+            loadTrips();
 
         });
 
@@ -4119,7 +3865,7 @@
 
                 const response =
                     await fetch(
-                        `${API}/api/personal-expenses?trip_id=${currentTripId}`,
+                       `${API}/api/personal-expenses?trip_id=${currentTripId}`,
                         {
 
                             headers:
@@ -4249,22 +3995,12 @@
                             headers:
                                 getAuthHeaders(),
 
-                            body:
-                                JSON.stringify({
-
-                                    description:
-                                        description,
-
-                                    amount:
-                                        amount,
-
-                                    expense_date:
-                                        date,
-
-                                    trip_id:
-                                        currentTripId
-
-                                })
+                            body: JSON.stringify({
+    description: description,
+    amount: amount,
+    expense_date: date,
+    trip_id: currentTripId
+})
 
                         }
                     );
@@ -4510,182 +4246,6 @@
 
 
         // ==========================================
-        // PDF EXPORT
-        // ==========================================
-
-        function pdfNewLine(doc, y, lineHeight) {
-
-            if (y > 275) {
-                doc.addPage();
-                return 20;
-            }
-
-            return y + lineHeight;
-
-        }
-
-
-        function downloadTripPdf() {
-
-            if (!currentTripId) {
-                alert("Please open a trip first.");
-                return;
-            }
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            const tripName = currentTripNameHeading.textContent || "Trip";
-            let y = 20;
-
-            doc.setFontSize(18);
-            doc.text(tripName, 14, y);
-            y += 8;
-
-            doc.setFontSize(10);
-            doc.setTextColor(120);
-            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, y);
-            doc.setTextColor(0);
-            y += 12;
-
-            doc.setFontSize(13);
-            doc.text("Tour Mates", 14, y);
-            y += 7;
-            doc.setFontSize(10);
-
-            if (tourMates.length === 0) {
-                doc.text("No tour mates added.", 14, y);
-                y += 6;
-            } else {
-                tourMates.forEach(mate => {
-                    doc.text(`- ${mate.name}`, 14, y);
-                    y = pdfNewLine(doc, y, 6);
-                });
-            }
-
-            y += 6;
-            doc.setFontSize(13);
-            doc.text("Expenses", 14, y);
-            y += 7;
-            doc.setFontSize(10);
-
-            if (expenses.length === 0) {
-                doc.text("No expenses added.", 14, y);
-                y += 6;
-            } else {
-                expenses.forEach(expense => {
-                    const dateParts = String(expense.expense_date).split("-");
-                    const formattedDate = dateParts.length === 3
-                        ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`
-                        : expense.expense_date;
-                    doc.text(
-                        `- ${expense.description} | Paid by: ${expense.payer_name} | ${formattedDate} | $${Number(expense.amount).toFixed(2)}`,
-                        14, y
-                    );
-                    y = pdfNewLine(doc, y, 6);
-                });
-            }
-
-            y += 6;
-            const total = expenses.reduce((sum, e) => sum + Number(e.amount), 0);
-            const perPerson = tourMates.length > 0 ? total / tourMates.length : 0;
-
-            doc.setFontSize(13);
-            doc.text("Summary", 14, y);
-            y += 7;
-            doc.setFontSize(10);
-            doc.text(`Total Tour Mates: ${tourMates.length}`, 14, y);
-            y = pdfNewLine(doc, y, 6);
-            doc.text(`Total Expenses: $${total.toFixed(2)}`, 14, y);
-            y = pdfNewLine(doc, y, 6);
-            doc.text(`Per Person: $${perPerson.toFixed(2)}`, 14, y);
-            y += 10;
-
-            if (tourMates.length > 0 && expenses.length > 0) {
-
-                const balances = tourMates.map(mate => {
-                    const paid = expenses
-                        .filter(e => Number(e.payer_id) === Number(mate.id))
-                        .reduce((sum, e) => sum + Number(e.amount), 0);
-                    return { name: mate.name, balance: paid - perPerson };
-                });
-
-                doc.setFontSize(13);
-                doc.text("Individual Balances", 14, y);
-                y += 7;
-                doc.setFontSize(10);
-
-                balances.forEach(b => {
-                    let text;
-                    if (b.balance > 0.01) text = `${b.name}: Gets back $${b.balance.toFixed(2)}`;
-                    else if (b.balance < -0.01) text = `${b.name}: Owes $${(-b.balance).toFixed(2)}`;
-                    else text = `${b.name}: All settled up`;
-                    doc.text(text, 14, y);
-                    y = pdfNewLine(doc, y, 6);
-                });
-
-            }
-
-            doc.save(`${tripName.replace(/\s+/g, "_")}_expense_report.pdf`);
-
-        }
-
-
-        function downloadPersonalPdf() {
-
-            if (!currentTripId) {
-                alert("Please open a trip first.");
-                return;
-            }
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            const tripName = currentTripNameHeading.textContent || "Trip";
-            let y = 20;
-
-            doc.setFontSize(18);
-            doc.text(`Personal Expenses - ${tripName}`, 14, y);
-            y += 8;
-
-            doc.setFontSize(10);
-            doc.setTextColor(120);
-            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 14, y);
-            doc.setTextColor(0);
-            y += 12;
-
-            doc.setFontSize(10);
-
-            if (personalExpenses.length === 0) {
-                doc.text("No personal expenses added.", 14, y);
-                y += 6;
-            } else {
-                let total = 0;
-                personalExpenses.forEach(expense => {
-                    const amount = Number(expense.amount);
-                    total += amount;
-                    const dateParts = String(expense.expense_date).split("-");
-                    const formattedDate = dateParts.length === 3
-                        ? `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`
-                        : expense.expense_date;
-                    doc.text(
-                        `- ${expense.description} | ${formattedDate} | $${amount.toFixed(2)}`,
-                        14, y
-                    );
-                    y = pdfNewLine(doc, y, 6);
-                });
-
-                y += 8;
-                doc.setFontSize(13);
-                doc.text(`Total: $${total.toFixed(2)}`, 14, y);
-            }
-
-            doc.save(`${tripName.replace(/\s+/g, "_")}_personal_expenses.pdf`);
-
-        }
-
-
-        // ==========================================
         // EVENTS
         // ==========================================
 
@@ -4719,14 +4279,6 @@
         );
 
 
-        document.getElementById("download-trip-pdf")
-            .addEventListener("click", downloadTripPdf);
-
-
-        document.getElementById("download-personal-pdf")
-            .addEventListener("click", downloadPersonalPdf);
-
-
         // ==========================================
         // START
         // ==========================================
@@ -4749,7 +4301,7 @@
                 "block";
 
 
-            handleRoute();
+            loadTrips();
 
         }
 
