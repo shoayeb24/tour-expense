@@ -1138,12 +1138,236 @@
 
         }
 
+
+        /* ==========================================
+           TOASTS
+        ========================================== */
+
+        #toast-container {
+
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            z-index: 5000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 340px;
+
+        }
+
+
+        @media(max-width:600px) {
+
+            #toast-container {
+
+                left: 14px;
+                right: 14px;
+                top: 14px;
+                max-width: none;
+
+            }
+
+        }
+
+
+        .toast {
+
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 13px 14px;
+            border-radius: var(--radius-md);
+            background: var(--paper);
+            box-shadow: 0 12px 30px rgba(22,51,46,0.18);
+            border-left: 4px solid var(--teal);
+            font-size: 0.9rem;
+            color: var(--ink);
+            cursor: pointer;
+            animation: toast-in .25s ease;
+
+        }
+
+
+        .toast.leaving {
+
+            animation: toast-out .2s ease forwards;
+
+        }
+
+
+        @keyframes toast-in {
+
+            from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+
+        }
+
+
+        @keyframes toast-out {
+
+            to { opacity: 0; transform: translateX(30px); }
+
+        }
+
+
+        .toast-icon {
+
+            font-size: 1.05rem;
+            line-height: 1.3;
+
+        }
+
+
+        .toast.toast-success { border-left-color: var(--teal); }
+        .toast.toast-error { border-left-color: var(--coral); }
+        .toast.toast-warning { border-left-color: var(--amber); }
+
+
+        /* ==========================================
+           CONFIRM MODAL
+        ========================================== */
+
+        #confirm-overlay {
+
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(22,51,46,0.45);
+            z-index: 6000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+
+        }
+
+
+        #confirm-overlay.show {
+
+            display: flex;
+
+        }
+
+
+        .confirm-card {
+
+            background: var(--paper);
+            border-radius: var(--radius-lg);
+            padding: 26px;
+            max-width: 380px;
+            width: 100%;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.25);
+            animation: toast-in .2s ease;
+
+        }
+
+
+        .confirm-message {
+
+            font-size: 0.98rem;
+            color: var(--ink);
+            margin-bottom: 22px;
+            line-height: 1.5;
+            white-space: pre-line;
+
+        }
+
+
+        .confirm-actions {
+
+            display: flex;
+            gap: 10px;
+
+        }
+
+
+        .confirm-actions button {
+
+            flex: 1;
+
+        }
+
+
+        #confirm-cancel {
+
+            background: var(--sand);
+            color: var(--ink);
+            border: 1.5px solid var(--sand-dim);
+
+        }
+
+
+        #confirm-cancel:hover {
+
+            background: var(--sand-dim);
+
+        }
+
+
+        /* ==========================================
+           BUTTON LOADING SPINNER
+        ========================================== */
+
+        .btn-spinner {
+
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.5);
+            border-top-color: #fff;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: -2px;
+            animation: spin .6s linear infinite;
+
+        }
+
+
+        @keyframes spin {
+
+            to { transform: rotate(360deg); }
+
+        }
+
+
+        button:disabled {
+
+            opacity: 0.75;
+            cursor: not-allowed;
+
+        }
+
     </style>
 
 </head>
 
 
 <body>
+
+
+    <!-- ==========================================
+         TOASTS & CONFIRM MODAL
+    ========================================== -->
+
+    <div id="toast-container"></div>
+
+    <div id="confirm-overlay">
+
+        <div class="confirm-card">
+
+            <div id="confirm-message" class="confirm-message"></div>
+
+            <div class="confirm-actions">
+
+                <button id="confirm-cancel">Cancel</button>
+                <button id="confirm-ok" class="btn-danger">Confirm</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
 
 
     <!-- ==========================================
@@ -1277,6 +1501,7 @@
                 >
                     Sign Up
                 </button>
+
 
             </p>
 
@@ -1941,6 +2166,114 @@
 
 
         // ==========================================
+        // TOAST NOTIFICATIONS
+        // ==========================================
+
+        const toastContainer =
+            document.getElementById("toast-container");
+
+        const toastIcons = {
+            success: "✅",
+            error: "⚠️",
+            warning: "ℹ️"
+        };
+
+        function showToast(message, type = "error") {
+
+            const toast = document.createElement("div");
+            toast.className = `toast toast-${type}`;
+
+            toast.innerHTML = `
+                <span class="toast-icon">${toastIcons[type] || toastIcons.error}</span>
+                <span>${message}</span>
+            `;
+
+            toast.addEventListener("click", () => dismissToast(toast));
+
+            toastContainer.appendChild(toast);
+
+            setTimeout(() => dismissToast(toast), 4200);
+
+        }
+
+        function dismissToast(toast) {
+
+            if (!toast || toast.classList.contains("leaving")) return;
+
+            toast.classList.add("leaving");
+
+            setTimeout(() => toast.remove(), 200);
+
+        }
+
+
+        // ==========================================
+        // CONFIRM MODAL (replaces window.confirm)
+        // ==========================================
+
+        const confirmOverlay =
+            document.getElementById("confirm-overlay");
+
+        const confirmMessageEl =
+            document.getElementById("confirm-message");
+
+        const confirmOkButton =
+            document.getElementById("confirm-ok");
+
+        const confirmCancelButton =
+            document.getElementById("confirm-cancel");
+
+        function showConfirm(message) {
+
+            confirmMessageEl.textContent = message;
+            confirmOverlay.classList.add("show");
+
+            return new Promise((resolve) => {
+
+                function cleanup(result) {
+                    confirmOverlay.classList.remove("show");
+                    confirmOkButton.removeEventListener("click", onOk);
+                    confirmCancelButton.removeEventListener("click", onCancel);
+                    resolve(result);
+                }
+
+                function onOk() { cleanup(true); }
+                function onCancel() { cleanup(false); }
+
+                confirmOkButton.addEventListener("click", onOk);
+                confirmCancelButton.addEventListener("click", onCancel);
+
+            });
+
+        }
+
+
+        // ==========================================
+        // BUTTON LOADING STATE
+        // ==========================================
+
+        function setButtonLoading(button, isLoading, loadingText = "Please wait...") {
+
+            if (isLoading) {
+
+                button.dataset.originalText = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = `<span class="btn-spinner"></span>${loadingText}`;
+
+            } else {
+
+                button.disabled = false;
+
+                if (button.dataset.originalText) {
+                    button.innerHTML = button.dataset.originalText;
+                }
+
+            }
+
+        }
+
+
+        // ==========================================
         // AUTH ELEMENTS
         // ==========================================
 
@@ -2288,9 +2621,9 @@
 
                 if (!currentTripId) {
 
-                    alert(
+                    showToast(
                         "Please open a trip first, then add its Personal Expenses from inside that trip."
-                    );
+                    , "warning");
 
                     return;
 
@@ -2407,6 +2740,10 @@
             "click",
             async () => {
 
+                setButtonLoading(authButton, true, "Please wait...");
+
+                try {
+
                 const email =
                     authEmail.value.trim();
 
@@ -2507,9 +2844,9 @@
                         }
 
 
-                        alert(
+                        showToast(
                             "Account created successfully!\n\nNow login."
-                        );
+                        , "success");
 
 
                         isLoginMode = true;
@@ -2654,6 +2991,14 @@
 
                 }
 
+                }
+
+                finally {
+
+                    setButtonLoading(authButton, false);
+
+                }
+
             }
         );
 
@@ -2731,7 +3076,7 @@
             catch (error) {
 
                 console.error("Load trips error:", error);
-                alert("Failed to load trips");
+                showToast("Failed to load trips", "error");
 
             }
 
@@ -2797,9 +3142,11 @@
             const name = tripNameInput.value.trim();
 
             if (!name) {
-                alert("Please enter a trip / place name");
+                showToast("Please enter a trip / place name", "warning");
                 return;
             }
+
+            setButtonLoading(addTripButton, true, "Creating...");
 
             try {
 
@@ -2815,11 +3162,13 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    alert(data.error);
+                    showToast(data.error, "error");
                     return;
                 }
 
                 tripNameInput.value = "";
+
+                showToast("Trip created!", "success");
 
                 await loadTrips();
 
@@ -2828,7 +3177,13 @@
             catch (error) {
 
                 console.error(error);
-                alert("Server connection failed!");
+                showToast("Server connection failed!", "error");
+
+            }
+
+            finally {
+
+                setButtonLoading(addTripButton, false);
 
             }
 
@@ -2837,7 +3192,7 @@
 
         async function deleteTrip(id) {
 
-            if (!confirm("Delete this trip? All its tour mates and expenses will be removed permanently.")) {
+            if (!await showConfirm("Delete this trip? All its tour mates and expenses will be removed permanently.")) {
                 return;
             }
 
@@ -2854,7 +3209,7 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    alert(data.error);
+                    showToast(data.error, "error");
                     return;
                 }
 
@@ -2865,7 +3220,7 @@
             catch (error) {
 
                 console.error(error);
-                alert("Server connection failed!");
+                showToast("Server connection failed!", "error");
 
             }
 
@@ -3047,9 +3402,9 @@
                     error
                 );
 
-                alert(
+                showToast(
                     "Server connection failed!"
-                );
+                , "error");
 
             }
 
@@ -3068,14 +3423,16 @@
 
             if (!name) {
 
-                alert(
+                showToast(
                     "Please enter a name"
-                );
+                , "warning");
 
                 return;
 
             }
 
+
+            setButtonLoading(addTourmate, true, "Adding...");
 
             try {
 
@@ -3105,7 +3462,7 @@
 
                 if (!response.ok) {
 
-                    alert(data.error);
+                    showToast(data.error, "error");
 
                     return;
 
@@ -3123,9 +3480,15 @@
 
                 console.error(error);
 
-                alert(
+                showToast(
                     "Server connection failed!"
-                );
+                , "error");
+
+            }
+
+            finally {
+
+                setButtonLoading(addTourmate, false);
 
             }
 
@@ -3139,7 +3502,7 @@
         async function deleteTourMate(id) {
 
             if (
-                !confirm(
+                !await showConfirm(
                     "Are you sure you want to delete this tour mate?\nTheir related expenses will also be deleted."
                 )
             ) {
@@ -3171,7 +3534,7 @@
 
                 if (!response.ok) {
 
-                    alert(data.error);
+                    showToast(data.error, "error");
 
                     return;
 
@@ -3187,9 +3550,9 @@
 
                 console.error(error);
 
-                alert(
+                showToast(
                     "Server connection failed!"
-                );
+                , "error");
 
             }
 
@@ -3221,9 +3584,9 @@
 
             if (!description) {
 
-                alert(
+                showToast(
                     "Please enter description"
-                );
+                , "warning");
 
                 return;
 
@@ -3235,9 +3598,9 @@
                 amount <= 0
             ) {
 
-                alert(
+                showToast(
                     "Please enter a valid amount"
-                );
+                , "warning");
 
                 return;
 
@@ -3246,14 +3609,16 @@
 
             if (!payerId) {
 
-                alert(
+                showToast(
                     "Please select payer"
-                );
+                , "warning");
 
                 return;
 
             }
 
+
+            setButtonLoading(addExpense, true, "Adding...");
 
             try {
 
@@ -3297,7 +3662,7 @@
 
                 if (!response.ok) {
 
-                    alert(data.error);
+                    showToast(data.error, "error");
 
                     return;
 
@@ -3327,9 +3692,15 @@
 
                 console.error(error);
 
-                alert(
+                showToast(
                     "Server connection failed!"
-                );
+                , "error");
+
+            }
+
+            finally {
+
+                setButtonLoading(addExpense, false);
 
             }
 
@@ -3343,7 +3714,7 @@
         async function deleteExpense(id) {
 
             if (
-                !confirm(
+                !await showConfirm(
                     "Delete this expense?"
                 )
             ) {
@@ -3375,7 +3746,7 @@
 
                 if (!response.ok) {
 
-                    alert(data.error);
+                    showToast(data.error, "error");
 
                     return;
 
@@ -3391,9 +3762,9 @@
 
                 console.error(error);
 
-                alert(
+                showToast(
                     "Server connection failed!"
-                );
+                , "error");
 
             }
 
@@ -3628,9 +3999,9 @@
                 tourMates.length === 0
             ) {
 
-                alert(
+                showToast(
                     "Add tour mates first"
-                );
+                , "error");
 
                 return;
 
@@ -3641,9 +4012,9 @@
                 expenses.length === 0
             ) {
 
-                alert(
+                showToast(
                     "Add expenses first"
-                );
+                , "error");
 
                 return;
 
@@ -3972,7 +4343,7 @@
         async function resetAll() {
 
             if (
-                !confirm(
+                !await showConfirm(
                     "Are you sure?\n\nThis will delete ALL tour mates and expenses for THIS TRIP only. Other trips and personal expenses are not affected."
                 )
             ) {
@@ -4005,7 +4376,7 @@
 
                 if (!response.ok) {
 
-                    alert(data.error);
+                    showToast(data.error, "error");
 
                     return;
 
@@ -4038,9 +4409,9 @@
                 `;
 
 
-                alert(
+                showToast(
                     "All data deleted successfully!"
-                );
+                , "success");
 
             }
 
@@ -4049,9 +4420,9 @@
 
                 console.error(error);
 
-                alert(
+                showToast(
                     "Server connection failed!"
-                );
+                , "error");
 
             }
 
@@ -4171,9 +4542,9 @@
                     error
                 );
 
-                alert(
+                showToast(
                     "Failed to load personal expenses"
-                );
+                , "error");
 
             }
 
@@ -4202,9 +4573,9 @@
 
             if (!description) {
 
-                alert(
+                showToast(
                     "Please enter description"
-                );
+                , "warning");
 
                 return;
 
@@ -4216,9 +4587,9 @@
                 amount <= 0
             ) {
 
-                alert(
+                showToast(
                     "Please enter a valid amount"
-                );
+                , "warning");
 
                 return;
 
@@ -4227,14 +4598,16 @@
 
             if (!date) {
 
-                alert(
+                showToast(
                     "Please select a date"
-                );
+                , "warning");
 
                 return;
 
             }
 
+
+            setButtonLoading(addPersonalExpense, true, "Adding...");
 
             try {
 
@@ -4276,10 +4649,10 @@
 
                 if (!response.ok) {
 
-                    alert(
+                    showToast(
                         data.error ||
                         "Failed to add expense"
-                    );
+                    , "error");
 
                     return;
 
@@ -4307,9 +4680,15 @@
 
                 console.error(error);
 
-                alert(
+                showToast(
                     "Server connection failed!"
-                );
+                , "error");
+
+            }
+
+            finally {
+
+                setButtonLoading(addPersonalExpense, false);
 
             }
 
@@ -4325,7 +4704,7 @@
         ) {
 
             if (
-                !confirm(
+                !await showConfirm(
                     "Delete this personal expense?"
                 )
             ) {
@@ -4358,10 +4737,10 @@
 
                 if (!response.ok) {
 
-                    alert(
+                    showToast(
                         data.error ||
                         "Failed to delete expense"
-                    );
+                    , "error");
 
                     return;
 
@@ -4377,9 +4756,9 @@
 
                 console.error(error);
 
-                alert(
+                showToast(
                     "Server connection failed!"
-                );
+                , "error");
 
             }
 
@@ -4528,7 +4907,7 @@
         function downloadTripPdf() {
 
             if (!currentTripId) {
-                alert("Please open a trip first.");
+                showToast("Please open a trip first.", "warning");
                 return;
             }
 
@@ -4634,7 +5013,7 @@
         function downloadPersonalPdf() {
 
             if (!currentTripId) {
-                alert("Please open a trip first.");
+                showToast("Please open a trip first.", "warning");
                 return;
             }
 
